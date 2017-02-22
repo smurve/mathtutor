@@ -10,7 +10,16 @@ import breeze.linalg.{DenseVector => DV}
   * @param upperRight the upper right corner expressed by a DenseVector
   */
 case class Box(lowerLeft: DV[Double], upperRight: DV[Double]) {
+
+  /**
+    * calculate the box that's just large enough to also include the given vector
+    */
   def <<<(newV: DV[Double]): Box = AlgebraUtils.include(this, newV)
+
+  /**
+    * @return the area of the box = width * height
+    */
+  def area : Double = math.abs((lowerLeft.data(0)-upperRight.data(0)) * (lowerLeft.data(1) - upperRight.data(1)))
 }
 
 
