@@ -14,12 +14,20 @@ case class Box(lowerLeft: DV[Double], upperRight: DV[Double]) {
 }
 
 
-
+/**
+  * Some utilities I use regularly
+  */
 object AlgebraUtils {
 
+  /**
+    * fold samples into a growing box starting with the first sample
+    *
+    * @param samples the sample set to determine the boundary box of
+    * @return the smallest rectangle that contains all the samples given.
+    */
   def boundaryBox(samples: Array[DV[Double]]): Box = {
     assert(samples.nonEmpty)
-    samples./:(Box(samples(0), samples(0)))(_ <<< _) // fold samples into a growing box
+    samples./:(Box(samples(0), samples(0)))(_ <<< _)
   }
 
   /**

@@ -14,6 +14,8 @@ import breeze.linalg.{ DenseVector => DV }
   */
 class Screen(val screenWidth: Int, val margin: Double, dataBoundary: Box ) {
 
+
+
   private class MetaData ( val boundary: Box ) {
 
     // We'll provide some margin on each side of the data box
