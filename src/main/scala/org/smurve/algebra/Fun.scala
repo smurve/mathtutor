@@ -2,19 +2,46 @@ package org.smurve.algebra
 
 import org.smurve.complex.Cpx
 
-/**
-  * Created by wgiersche on 25/02/17.
-  */
-case class Fun ( f: Cpx => Cpx ){
+abstract class Fun(val evalF: Cpx => Cpx) {
 
-  def apply( x: Cpx ): Cpx = f(x)
+  def apply(x: Cpx): Cpx = evalF(x)
 
-  def apply(inner: Fun ) = Fun (x=> f ( inner.f(x) ))
+  def apply(inner: Fun) = new InFun(this, inner)
 
-  def + ( other: Fun ) : Fun = Fun ( x => f(x) + other.f(x))
-  def * ( other: Fun ) : Fun = Fun ( x => f(x) * other.f(x))
-  def - ( other: Fun ) : Fun = Fun ( x => f(x) - other.f(x))
-  def / ( other: Fun ) : Fun = Fun ( x => f(x) / other.f(x))
-  def ° ( exponent: Integer ) : Fun = Fun ( x => f(x) ^ exponent )
-  def unary_- : Fun = Fun ( -_ )
+  def +(other: Fun): Fun = new AddFun(this, other)
+
+  def *(other: Fun): Fun = new MulFun(this, other)
+
+  def -(other: Fun): Fun = new MinFun(this, other)
+
+  def /(other: Fun): Fun = new DivFun(this, other)
+
+  def °(exponent: Integer): Fun = new ExpFun(this, exponent)
+
+  def unary_- : Fun = new NegFun(this)
+
+  def d: Fun
+
+  def toContextString(context: String ): String
+}
+
+object zero extends Fun(_ => 0) {
+  def d: Fun = this
+
+  override def toString = "0"
+
+  def toContextString(context: String): String = toString
+}
+
+class Const(z: Cpx) extends Fun(_ => z) {
+  def d: Fun = zero
+  def toContextString(context: String): String = toString
+  override def toString: String = z.toString
+}
+
+object x extends Fun(x => x) {
+  def d = new Const(1)
+
+  def toContextString(context: String): String = toString
+  override def toString: String = "x"
 }

@@ -4,8 +4,8 @@ import org.smurve.complex.Cpx
 
 package object algebra {
 
-  implicit def toFun(n: Int): Fun = Fun( _ => Cpx(n, 0))
-  implicit def toFun(z: Cpx): Fun = Fun( _ => z )
+  implicit def toFun(x: Double): Fun = new Const( Cpx(x, 0))
+  implicit def toFun(n: Int): Fun = new Const( Cpx(n, 0))
+  implicit def toFun(z: Cpx): Fun = new Const( z )
 
-  val x = Fun(x=>x)
 }
