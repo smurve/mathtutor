@@ -1,5 +1,6 @@
 package org.smurve.algebra
 
+import org.smurve.algebra.fun.{Fun, x}
 import org.smurve.complex.Cpx
 import org.specs2.Specification
 import org.specs2.specification.core.SpecStructure

@@ -1,5 +1,6 @@
 package org.smurve
 
+import org.smurve.algebra.fun.{Const, Fun}
 import org.smurve.complex.Cpx
 
 package object algebra {
