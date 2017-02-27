@@ -13,7 +13,7 @@ import scala.util.Random
 class SVMDemo extends Specification {
   override def is: SpecStructure =
         s2"""
-        $training
+        (dollar) training
     """
 
 

@@ -1,35 +1,34 @@
 package org.smurve.algebra.fun
 
+import org.smurve.complex.Cpx
+
 /**
   *
-  * @param f the base function
-  * @param n the exponent
+  * the additive inverse -f of a function f
+  *
+  * @param f the function
   */
-class ExpFun(val f: Fun, val n: Int) extends Fun(x => f(x) ^ n) {
+class ExpFun(val f: Fun) extends Fun(y => { val z=f(y); math.exp(z.r) * Cpx( math.cos(z.i), math.sin(z.i))}) {
+
+  override def d: Fun = f.d * this
 
   // the brackets are for IntelliJ, not for the compiler
-  override def d: Fun = (n * f ° (n - 1)) * f.d
+  override def toString: String = s"exp(${f.toString})"
 
+  override def toContextString(context: String): String = toString
 
-  override def toString: String = f.toContextString("°") + "°" + n
+  override def simplified: Fun = new ExpFun(f.simplified)
 
-  override val context = "°"
+  override val context = "exp"
 
-  override def toContextString(context: String): String =
-    if (context == "°") "(" + toString + ")" else toString
-
-  override def simplified: Fun = {
-    if ( n == 0 ) one
-    else {
-      if ( n == 1 ) f.simplified
-      else
-        new ExpFun(f.simplified, n)
-    }
-  }
-
-  override def equals ( other: Any ) : Boolean = other match {
-    case e: ExpFun => e.n == n && e.f == f
-    case _=> false
+  override def equals ( other: Any ): Boolean = other match {
+    case o: ExpFun => f.equals(o.f)
+    case _ => false
   }
 }
+
+object exp {
+  def apply(f:Fun): ExpFun = new ExpFun(f)
+}
+
 

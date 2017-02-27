@@ -19,6 +19,8 @@ class EqualsTest extends Specification {
       """
 
 
+
+
   private def constantEquals = {
 
     new Const(1) == new Const(1) must beTrue

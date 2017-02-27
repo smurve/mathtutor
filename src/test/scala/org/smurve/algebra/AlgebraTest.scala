@@ -1,21 +1,13 @@
 package org.smurve.algebra
 
+import org.scalatest.{FlatSpec, ShouldMatchers}
 import org.smurve.algebra.fun.{Fun, x}
 import org.smurve.complex.Cpx
-import org.specs2.Specification
-import org.specs2.matcher.MatchResult
-import org.specs2.specification.core.SpecStructure
 
-class AlgebraTest extends Specification {
-  override def is: SpecStructure =
-    s2"""
-         declaring and combining functions $combineFunctions
-      """
+class AlgebraTest extends FlatSpec with ShouldMatchers {
 
-
-  private def combineFunctions: MatchResult[Cpx] = {
+  "The expression 2 * ( x + 1 )" should " create the expected function " in {
     val f: Fun = 2 * ( x + 1 )
-    f(3) must equalTo ( Cpx(8, 0))
-
+    f(3) should be ( Cpx(8, 0))
   }
 }

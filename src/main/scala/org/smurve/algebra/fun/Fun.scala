@@ -4,19 +4,26 @@ import org.smurve.complex.Cpx
 
 abstract class Fun(val evalF: Cpx => Cpx) {
 
-  def apply(x: Cpx): Cpx = evalF(x)
+  private val PRECISION = 10000000000.0
+
+  def apply(x: Cpx): Cpx = { val r = evalF(x); Cpx( math.round(r.r * PRECISION )/PRECISION, math.round(r.i*PRECISION) / PRECISION)}
+  //def apply: (Cpx) => Cpx = evalF
 
   def apply(inner: Fun): Fun = Fun.simplify(new CompFun(this, inner))
 
   def +(other: Fun): Fun = Fun.simplify(new SumFun(this, other))
 
-  def *(other: Fun): Fun = Fun.simplify(new ProdFun(this, other))
+  def *(other: Fun): Fun =
+    {
+      Fun.simplify(
+        new ProdFun(this, other))
+    }
 
   def -(other: Fun): Fun = Fun.simplify(new DiffFun(this, other))
 
   def /(other: Fun): Fun = Fun.simplify(new FracFun(this, other))
 
-  def °(exponent: Integer): Fun = Fun.simplify(new ExpFun(this, exponent))
+  def °(exponent: Integer): Fun = Fun.simplify(new PowFun(this, exponent))
 
   def unary_- : Fun = Fun.simplify(new NegFun(this))
 
@@ -30,31 +37,23 @@ abstract class Fun(val evalF: Cpx => Cpx) {
 }
 
 
+object pi extends Const(math.Pi) {
+  override def toString = "pi"
+}
+
+object e extends Const(math.E) {
+  override def toString = "e"
+}
+
 object zero extends Const(0) {
-  override def d: Fun = this
-
   override def toString = "0"
-
-  override def toContextString(context: String): String = toString
-
-  override def simplified: Fun = this
-
-  override val context = "c"
-
 }
 
 object one extends Const(1) {
-
   override def toString = "1"
-
-  override def toContextString(context: String): String = toString
-
-  override def simplified: Fun = this
-
-  override val context = "c"
 }
 
-class Const(val z: Cpx) extends Fun(_ => z) {
+class Const(z: Cpx) extends Fun(_ => z) {
   override def d: Fun = zero
 
   override def toContextString(context: String): String = toString
@@ -73,14 +72,14 @@ class Const(val z: Cpx) extends Fun(_ => z) {
 
   override def equals(other: Any): Boolean = other match {
     case other: Const =>
-      z.equals(other.z)
+      z == other.evalF(0)
     case _ =>
       false
   }
 }
 
 object x extends Fun(x => x) {
-  def d = new Const(1)
+  def d = one
 
   def toContextString(context: String): String = toString
 

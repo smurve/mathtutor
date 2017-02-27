@@ -28,16 +28,15 @@ class SumFun(f: Fun, g: Fun) extends BiFun(f, g, x => f(x) + g(x)) {
       else if (gn == zero)
         fn
       else
-        new SumFun(fn, gn)
+        fn match {
+          case l: Const => gn match {
+            case r: Const => return new Const(r.evalF(0) + l.evalF(0))
+            case _ => new SumFun(fn, gn)
+          }
+          case _ => new SumFun(fn, gn)
+        }
     }
 
-    val r2 = fn match {
-      case l: Const => gn match {
-        case r: Const => return new Const(r.z + l.z)
-        case _=> r1
-      }
-      case _ => r1
-    }
 
     /*
       * Check weather any of our two functions can potentially be associatively collapsed: like a * (b * c)
@@ -46,13 +45,12 @@ class SumFun(f: Fun, g: Fun) extends BiFun(f, g, x => f(x) + g(x)) {
     val localOption: Option[(Const, Const, Fun)] = Fun.findAssociativityOption[Const](fn, gn, "+", "c")
 
     // if there's an option it will contain the bits for a simplification, otherwise we go with what we have
-    localOption.map(lo => new SumFun(f = new Const(lo._1.z + lo._2.z), g = lo._3)).getOrElse(r2)
-
+    localOption.map(lo => new SumFun(f = new Const(lo._1.evalF(0) + lo._2.evalF(0)), g = lo._3)).getOrElse(r1)
 
 
   }
 
-  override def equals( other: Any ) : Boolean = other match {
+  override def equals(other: Any): Boolean = other match {
     case o: SumFun =>
       f.equals(o.f) && g.equals(o.g)
     case _ =>

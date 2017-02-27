@@ -8,7 +8,11 @@ package org.smurve.algebra.fun
   * @param g the right function
   */
 class ProdFun(f: Fun, g: Fun) extends BiFun(f, g, x => f(x) * g(x)) {
-  override def d: Fun = f.d * g + f * g.d
+
+  override def d: Fun = {
+    val r = f.d * g + f * g.d
+    r
+  }
 
   override def toString: String = f.toContextString(context) + "*" + g.toContextString(context)
 
@@ -42,7 +46,7 @@ class ProdFun(f: Fun, g: Fun) extends BiFun(f, g, x => f(x) * g(x)) {
 
 
     // if there's an option it will contain the bits for a simplification, otherwise we go with what we have
-    localOption.map(lo => new ProdFun(f = new Const(lo._1.z * lo._2.z), g = lo._3)).getOrElse(r1)
+    localOption.map(lo => new ProdFun(f = new Const(lo._1.evalF(0) * lo._2.evalF(0)), g = lo._3)).getOrElse(r1)
 
 
   }
