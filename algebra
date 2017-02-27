@@ -2,7 +2,8 @@ import org.smurve.algebra
 import org.smurve.algebra._
 import org.smurve.algebra.fun._
 import org.smurve.complex._
-
+import org.smurve.charts._
 
 def fac(n:Int): Int = if (n == 0) 1 else n * fac(n-1)
 
+implicit val spec = new PlotterSpec("MySpec")

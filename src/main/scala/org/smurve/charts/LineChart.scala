@@ -7,18 +7,14 @@ import org.jfree.data.xy.{XYSeries, XYSeriesCollection}
 import org.jfree.ui.{ApplicationFrame, RefineryUtilities}
 import org.smurve.algebra.fun.Fun
 
-class ScPlot {
 
-}
+class PlotterSpec(
+                   val name: String
+                 ) {}
 
-class PlotterSpec (
-                    val name: String
-                  ) {}
-
-class FastScatterPlotDemo ( fun: Fun)( implicit spec: PlotterSpec )  extends ApplicationFrame("Chart") {
+class LineChart()(implicit spec: PlotterSpec) extends ApplicationFrame("Chart") {
 
   val dataSet = new XYSeriesCollection
-  dataSet.addSeries(createSeries ( spec, fun ))
 
   val chart: JFreeChart = ChartFactory.createXYLineChart(
     "XY Chart", // Title
@@ -41,7 +37,7 @@ class FastScatterPlotDemo ( fun: Fun)( implicit spec: PlotterSpec )  extends App
   //chart.getRenderingHints.put (RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
   val panel = new ChartPanel(chart, true)
-  panel.setPreferredSize(new java.awt.Dimension(500, 270))
+  panel.setPreferredSize(new java.awt.Dimension(1024, 768))
   //      panel.setHorizontalZoom(true);
   //    panel.setVerticalZoom(true);
   panel.setMinimumDrawHeight(10)
@@ -55,8 +51,24 @@ class FastScatterPlotDemo ( fun: Fun)( implicit spec: PlotterSpec )  extends App
   RefineryUtilities.centerFrameOnScreen(this)
   setVisible(true)
 
+  def cls(): Unit = {
+    dataSet.removeAllSeries()
+  }
 
-  private def createSeries (spec: PlotterSpec, fun: Fun ) : XYSeries = {
+  def showFun(fun: Fun, left: Double, right: Double, numValues: Int) {
+
+    val series = new XYSeries(fun.toString)
+    val dx = (right - left) / numValues
+
+    (0 to numValues).foreach(n => {
+      val x = left + n * dx
+      series.add(x, fun(x).r)
+    })
+
+    dataSet.addSeries(series)
+  }
+
+  private def createSeries(fun: Fun): XYSeries = {
     val series = new XYSeries(spec.name)
 
     series.add(10.0, 10.0)
