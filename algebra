@@ -6,4 +6,5 @@ import org.smurve.charts._
 
 def fac(n:Int): Int = if (n == 0) 1 else n * fac(n-1)
 
-implicit val spec = new PlotterSpec("MySpec")
+implicit val spec = new PlotterSpec(title="Default Plot")
+implicit val domain = Domain(-2, 2, -2, 2, 100, 100)

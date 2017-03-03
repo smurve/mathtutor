@@ -11,7 +11,7 @@ class PowFun(val f: Fun, val n: Int) extends Fun(x => f(x) ^ n) {
   override def d: Fun = (n * f ° (n - 1)) * f.d
 
 
-  override def toString: String = f.toContextString("°") + "°" + n
+  override def toString: String = f.toContextString("°") + "^" + n
 
   override val context = "°"
 

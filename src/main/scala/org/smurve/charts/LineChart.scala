@@ -8,23 +8,30 @@ import org.jfree.ui.{ApplicationFrame, RefineryUtilities}
 import org.smurve.algebra.fun.Fun
 
 
-class PlotterSpec(
-                   val name: String
-                 ) {}
+case class PlotterSpec(
+                        title: String = "A Function Plot",
+                        xLabel: String = "",
+                        yLabel: String = "",
+                        orientation: PlotOrientation = PlotOrientation.VERTICAL,
+                        legend: Boolean = false,
+                        tooltips: Boolean = false,
+                        urls: Boolean = false
+                 ) {
+}
 
 class LineChart()(implicit spec: PlotterSpec) extends ApplicationFrame("Chart") {
 
   val dataSet = new XYSeriesCollection
 
   val chart: JFreeChart = ChartFactory.createXYLineChart(
-    "XY Chart", // Title
-    "x-axis", // x-axis Label
-    "y-axis", // y-axis Label
-    dataSet, // Dataset
-    PlotOrientation.VERTICAL, // Plot Orientation
-    true, // Show Legend
-    true, // Use tooltips
-    false // Configure chart to generate URLs?
+    spec.title, // Title
+    spec.xLabel, // x-axis Label
+    spec.yLabel, // y-axis Label
+    dataSet, //
+    spec.orientation, // Plot Orientation
+    spec.legend, // Show Legend
+    spec.tooltips, // Use tooltips
+    spec.urls // Configure chart to generate URLs?
   )
 
 
@@ -51,6 +58,7 @@ class LineChart()(implicit spec: PlotterSpec) extends ApplicationFrame("Chart") 
   RefineryUtilities.centerFrameOnScreen(this)
   setVisible(true)
 
+
   def cls(): Unit = {
     dataSet.removeAllSeries()
   }
@@ -69,7 +77,7 @@ class LineChart()(implicit spec: PlotterSpec) extends ApplicationFrame("Chart") 
   }
 
   private def createSeries(fun: Fun): XYSeries = {
-    val series = new XYSeries(spec.name)
+    val series = new XYSeries(spec.title)
 
     series.add(10.0, 10.0)
     series.add(-12.0, 3.0)
