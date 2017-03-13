@@ -3,6 +3,9 @@ import org.smurve.algebra._
 import org.smurve.algebra.fun._
 import org.smurve.complex._
 import org.smurve.charts._
+import org.smurve.mnist.{MNISTHelper=>mh}
+import org.smurve.mnist._
+import breeze.linalg._
 
 def fac(n:Int): Int = if (n == 0) 1 else n * fac(n-1)
 
