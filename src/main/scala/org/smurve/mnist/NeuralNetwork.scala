@@ -1,7 +1,5 @@
 package org.smurve.mnist
 
-import breeze.linalg.DenseVector
-
 
 /**
   * A neural network. Note that we use the term layer for the function sigmoid(mx+b), not for the io gates.
@@ -13,7 +11,7 @@ import breeze.linalg.DenseVector
   */
 class NeuralNetwork(val ioSizes: Array[Int], val activations: Array[Activation], initWith: InitWith) {
 
-  assert(ioSizes.length - 1 == activations.length)
+  assert(ioSizes.length - 1 == activations.length,"Number of activation functions does not match!")
 
   val layers = new Array[NNLayer](ioSizes.length - 1)
 
@@ -34,8 +32,17 @@ class NeuralNetwork(val ioSizes: Array[Int], val activations: Array[Activation],
 
   def update ( eta: Double ): Unit = layers(0).update(eta)
 
+  override def toString : String = {
+    "\n" + layers.map(_.toString).mkString("\n\n") +
+    "\n--------------------------------------------------------------------\n"
+  }
+
   def train(x: DV, y: DV): DV = {
     layers(0).feedForwardAndPropBack(x, y)
+  }
+
+  def train(sample: (DV, DV)): DV = {
+    layers(0).feedForwardAndPropBack(sample._1, sample._2)
   }
 
   def costFunction(finalActivation: DV, desired: DV): Double = {

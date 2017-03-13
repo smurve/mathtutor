@@ -1,6 +1,7 @@
 package org.smurve
 
 import breeze.linalg.{DenseMatrix, DenseVector}
+import scala.language.implicitConversions
 
 /**
   * Created by wgiersche on 11.03.17.
@@ -28,4 +29,6 @@ package object mnist {
   type InitWith = String
   val INIT_WITH_RANDOM : InitWith = "RANDOM"
   val INIT_WITH_CONST : InitWith = "CONST"
+
+  implicit def toDouble ( n: Int ) : Double = n.toDouble
 }

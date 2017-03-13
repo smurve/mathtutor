@@ -16,7 +16,7 @@ import breeze.linalg.DenseVector
   *   |       |      |
   *    --------------
   */
-object SimpleLearningHelper {
+object SimpleShapeHelper {
 
   def nextSample : (DV, DV) = {
 

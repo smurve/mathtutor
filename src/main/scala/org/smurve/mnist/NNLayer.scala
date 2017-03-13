@@ -51,6 +51,10 @@ class NNLayer(val inputSize: Int, val outputSize: Int,
     if ( next.isEmpty) a else next.get.feedForward(a)
   }
 
+  override def toString : String = {
+    w.toString + "\n\n" + b.toString + "\n"
+  }
+
   /**
     * Feed forward and store the results for back propagation
     * @param x the input vector
