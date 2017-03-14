@@ -21,13 +21,13 @@ class SimpleBinaryClassifierTest extends FlatSpec with ShouldMatchers {
       nn.train( sample )
       if ( n % 300 == 0 ) {
         nn.update(0.5)
-        println(nn)
+        //println(nn)
       }
     }
 
     println(nn)
 
-    val N = 200
+    val N = 20
     var n = 0
     for ( _ <- 0 until N ) {
       if ( checkSample()) {
