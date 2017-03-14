@@ -1,0 +1,7 @@
+val app = new FastScatterPlotApplication()
+app.pack()
+app.setVisible(true)
+app.dataSet.removeAllSeries()
+import org.jfree.data.xy._
+val data = new XYSeries("Data")
+val nn = new NeuralNetwork(Array(2,5,5,2), Array(sigmoid(_), sigmoid(_), sigmoid(_)), INIT_WITH_RANDOM)

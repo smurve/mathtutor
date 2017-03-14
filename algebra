@@ -6,11 +6,13 @@ import org.smurve.charts._
 import org.smurve.mnist.{MNISTHelper=>mh}
 import org.smurve.mnist._
 import breeze.linalg._
+import org.smurve.mathtutor.demos._
+import scala.language.postfixOps
+import java.awt.Color
 
 def fac(n:Int): Int = if (n == 0) 1 else n * fac(n-1)
 
 implicit val spec = new PlotterSpec(title="Default Plot")
 implicit val domain = Domain(-2, 2, -2, 2, 100, 100)
 
-val sbch = new SimpleBinaryClassifierHelper(x=>x)
-val n2x2 = new NeuralNetwork(Array(2,2), Array(sigmoid(_)), INIT_WITH_RANDOM)
+val spd = ScatterPlotDemo

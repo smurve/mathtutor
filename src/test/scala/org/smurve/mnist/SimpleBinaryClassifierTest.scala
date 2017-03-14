@@ -12,11 +12,11 @@ class SimpleBinaryClassifierTest extends FlatSpec with ShouldMatchers {
   //val nn = new NeuralNetwork(Array(2, 5, 5, 5, 2), Array(sigmoid(_),sigmoid(_),sigmoid(_),sigmoid(_)), INIT_WITH_RANDOM)
 
   val sbch = new SimpleBinaryClassifierHelper(x=>
-    (x + 2 ) * ( x - 2 ) * x )
+    (x - 2 ) * ( x + 2 ) * x )
     //4* math.sin(x))
 
   "A simple binary classifier" should "learn to tell above from below" in {
-    for ( n <- 1 to 300000 ) {
+    for ( n <- 1 to 1000000 ) {
       val sample = sbch.nextSample
       nn.train( sample )
       if ( n % 300 == 0 ) {
