@@ -7,9 +7,11 @@ import breeze.linalg.DenseVector
   */
 class SimpleBinaryClassifierHelper( f: Double=> Double) {
 
-  def nextSample : (DV, DV) = {
+  def nextSample (maxX: Double) : (DV, DV) = {
 
-    val x: DV = (DenseVector.rand(2) * 10.0) - DenseVector.fill(2){5.0}
+    val fromEdge = 5.0 - maxX
+
+    val x: DV = (DenseVector.rand(2) * (10.0 - fromEdge)) - DenseVector.fill(2){5.0}
     (x, classify(x))
   }
 
@@ -25,7 +27,7 @@ class SimpleBinaryClassifierHelper( f: Double=> Double) {
 
   def train ( nn: NeuralNetwork ) : Unit = {
     for ( n <- 1 to 1000000 ) {
-      val sample = nextSample
+      val sample = nextSample(maxX = 5)
       nn.train( sample )
       if ( n % 300 == 0 ) {
         nn.update(0.5)

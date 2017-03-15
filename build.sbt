@@ -11,6 +11,10 @@ libraryDependencies  ++= Seq(
   "org.apache.spark" %% "spark-mllib" % "2.1.0",
   //"jcommon" % "jcommon" % "1.0.16",
   "org.jfree" % "jfreechart-swt" % "1.0"
+
+
+  // Check comments on ParallelTest for a discussion on the effects of this library
+  //"com.github.fommil.netlib" % "all" % "1.1.2"
 )
 
 resolvers ++= Seq(

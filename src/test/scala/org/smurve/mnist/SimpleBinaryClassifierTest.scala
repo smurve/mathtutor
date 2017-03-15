@@ -17,7 +17,7 @@ class SimpleBinaryClassifierTest extends FlatSpec with ShouldMatchers {
 
   "A simple binary classifier" should "learn to tell above from below" in {
     for ( n <- 1 to 1000000 ) {
-      val sample = sbch.nextSample
+      val sample = sbch.nextSample(maxX = 5)
       nn.train( sample )
       if ( n % 300 == 0 ) {
         nn.update(0.5)
@@ -38,7 +38,7 @@ class SimpleBinaryClassifierTest extends FlatSpec with ShouldMatchers {
   }
 
   def checkSample() : Boolean = {
-    val sample = sbch.nextSample
+    val sample = sbch.nextSample(maxX = 5.0)
     val classification = nn.classify(sample._1)
     val class_clear = if ( classification.data(0) > classification.data(1))
       DenseVector(1.0, 0.0)
