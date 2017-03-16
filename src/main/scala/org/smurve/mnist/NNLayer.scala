@@ -20,6 +20,7 @@ class NNLayer(val inputSize: Int, val outputSize: Int,
   private var w: DM = newWeight(outputSize, inputSize, initWith)
   private var n: Double = 0
 
+  // containers for averaging over the sample batches
   private var nabla_b: DV = DenseVector.zeros(outputSize)
   private var nabla_w: DM = DenseMatrix.zeros(outputSize, inputSize)
 
@@ -29,6 +30,12 @@ class NNLayer(val inputSize: Int, val outputSize: Int,
     n = 0
   }
 
+  def weights = w
+
+  /**
+    * update all weights and biases with the average of the most recently finished sample batch
+    * @param eta the learning factor
+    */
   def update ( eta: Double ): Unit = {
     w = w - nabla_w * ( eta / n)
     b = b - nabla_b * ( eta / n)
@@ -37,14 +44,23 @@ class NNLayer(val inputSize: Int, val outputSize: Int,
   }
 
   private def newBias ( size: Int, initWith: InitWith ) : DV =
-    if ( initWith == INIT_WITH_RANDOM ) DenseVector.rand(size) else DenseVector.fill(size){0.5}
+    if ( initWith == INIT_WITH_RANDOM )
+      DenseVector.rand(size)-DenseVector.fill(size){0.5}
+    else
+      DenseVector.fill(size){0.5}
 
   private def newWeight ( outputSize: Int, inputSize: Int, initWith: InitWith): DM =
     if ( initWith == INIT_WITH_RANDOM )
-      DenseMatrix.rand(outputSize, inputSize)
+      DenseMatrix.rand(outputSize, inputSize)-DenseMatrix.fill(outputSize, inputSize){0.5}
     else
       DenseMatrix.fill(outputSize, inputSize){0.5}
 
+  /**
+    * calculate the output, and feed it into the next layer, if there is one.
+    * return this layer's output, or the next layer's output, if there is one.
+    * @param x the input
+    * @return the total output of all layers
+    */
   def feedForward ( x: DV) : DV = {
     val z = w * x + b
     val a = sigmoid ( z )
