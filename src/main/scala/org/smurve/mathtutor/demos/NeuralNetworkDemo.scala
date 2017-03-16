@@ -2,7 +2,6 @@ package org.smurve.mathtutor.demos
 
 import java.awt.Color
 
-import breeze.numerics.sigmoid
 import org.smurve.mnist._
 
 /**
@@ -15,7 +14,7 @@ object NeuralNetworkDemo {
   val N_VALIDATE = 20000
 
   def main(args: Array[String]): Unit = {
-    val nn = new NeuralNetwork(Array(2, 5, 5, 2), Array(sigmoid(_), sigmoid(_), sigmoid(_)), INIT_WITH_RANDOM)
+    val nn = new NeuralNetwork(Array(2, 5, 5, 2), Array(SIGMOID, SIGMOID, SIGMOID), INIT_WITH_RANDOM)
 
     val f = (x:Double) => 0.1 * (x - 3.5) * (x - 1) * (x + 3.5) * x
 

@@ -4,7 +4,7 @@ import org.smurve.mnist._
 
 object MNISTDemo {
 
-  val N_TRAINING = 60000
+  val N_TRAINING = 10000
   val N_BATCH = 100
   val ETA = 3.0
 
@@ -25,7 +25,7 @@ object MNISTDemo {
   val lbls: MNISTLabelFile = new MNISTLabelFile("train-labels")
 
   //val nn = new NeuralNetwork(Array(IMAGE_SIZE, FIRST_HIDDEN_LAYER_SIZE, 100, 10), Array(sigmoid(_), sigmoid(_), sigmoid(_)),INIT_WITH_RANDOM)
-  val nn = new NeuralNetwork(Array(IMAGE_SIZE, FIRST_HIDDEN_LAYER_SIZE, 10), Array(sigmoid(_), sigmoid(_)), INIT_WITH_RANDOM)
+  val nn = new NeuralNetwork(Array(IMAGE_SIZE, FIRST_HIDDEN_LAYER_SIZE, 10), Array(SIGMOID, SIGMOID), INIT_WITH_RANDOM)
   //val nn = new NeuralNetwork(Array(IMAGE_SIZE, 10), Array(sigmoid(_)),INIT_WITH_RANDOM)
 
   def now: Long = System.currentTimeMillis
@@ -62,7 +62,7 @@ object MNISTDemo {
 
     var sumSuccess = 0.0
     var sumFailure = 0.0
-    for (n <- 0 until 60000) {
+    for (n <- 0 until N_TRAINING) {
       val img = transform(imgs.img(n))
       val res = nn.classify(img.dv)
       val resNumber = asNumber(res)

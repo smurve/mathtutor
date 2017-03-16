@@ -5,7 +5,7 @@ import org.scalatest.{FlatSpec, ShouldMatchers}
 class SimpleShapeTest extends FlatSpec with ShouldMatchers {
 
   "A simple network" should "learn to tell horizontal from diag from vertical structures" in {
-    val nn = new NeuralNetwork(Array(4,7, 3), Array(sigmoid(_),sigmoid(_)), INIT_WITH_RANDOM)
+    val nn = new NeuralNetwork(Array(4,7, 3), Array(SIGMOID, SIGMOID), INIT_WITH_RANDOM)
 
     for ( n <- 0 to 500 ) {
       val sample = SimpleShapeHelper.nextSample

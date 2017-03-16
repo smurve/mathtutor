@@ -17,7 +17,8 @@ class NeuralNetwork(val ioSizes: Array[Int], val activations: Array[Activation],
 
   var prev: Option[NNLayer] = None
   for (i <- layers.length - 1 to 0 by -1) {
-    layers(i) = new NNLayer(ioSizes(i), ioSizes(i + 1), prev, initWith, euclideanCostDerivative)(this)
+    layers(i) = new NNLayer(ioSizes(i), ioSizes(i + 1), prev, initWith,
+      euclideanCostDerivative, activations(i))(this)
     prev = Some(layers(i))
   }
 
@@ -47,7 +48,7 @@ class NeuralNetwork(val ioSizes: Array[Int], val activations: Array[Activation],
 
   def costFunction(finalActivation: DV, desired: DV): Double = {
     val diff = finalActivation - desired
-    (.5 * diff.t * diff).data(0)
+    (.5 * diff.t * diff).toArray.apply(0)
   }
 
   def euclideanCostDerivative(finalActivation: DV, desired: DV): DV = finalActivation - desired

@@ -13,7 +13,8 @@ import breeze.linalg.{DenseMatrix, DenseVector}
 class NNLayer(val inputSize: Int, val outputSize: Int,
               val next: Option[NNLayer] = None,
               initWith: InitWith = INIT_WITH_RANDOM,
-              val costDerivative: (DV, DV)=>DV
+              val costDerivative: (DV, DV)=>DV,
+              activation: Activation
              )(implicit network: NeuralNetwork) {
 
   private var b: DV = newBias(outputSize, initWith)
@@ -30,7 +31,7 @@ class NNLayer(val inputSize: Int, val outputSize: Int,
     n = 0
   }
 
-  def weights = w
+  def weights: DM = w
 
   /**
     * update all weights and biases with the average of the most recently finished sample batch
@@ -63,7 +64,7 @@ class NNLayer(val inputSize: Int, val outputSize: Int,
     */
   def feedForward ( x: DV) : DV = {
     val z = w * x + b
-    val a = sigmoid ( z )
+    val a = activation.fn ( z )
     if ( next.isEmpty) a else next.get.feedForward(a)
   }
 
@@ -80,13 +81,13 @@ class NNLayer(val inputSize: Int, val outputSize: Int,
   def feedForwardAndPropBack(x: DV, y: DV): DV = {
     n += 1
     val z = w * x + b
-    val a = sigmoid ( z )
+    val a = activation.fn ( z )
 
     val d = if (next.isEmpty) {
       costDerivative(a, y)
     } else {
       val wd = next.get.feedForwardAndPropBack( a, y)
-      adamard (wd,  sigmoid_prime(z))
+      wd :* activation.deriv(z)
     }
 
     nabla_b += d

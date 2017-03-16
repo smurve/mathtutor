@@ -21,10 +21,12 @@ class ParallelTest extends FlatSpec with ShouldMatchers {
 
   "a parallel matrix" should "be much faster than a sequential one" in {
 
-    val r = DenseVector.rand[Double](500000)
+    val r = DenseVector.rand[Double](50000) // go for at least 5 million to have reasonable load
     val m = r :: r :: r :: r :: r :: r :: r :: r :: r :: r :: r :: r :: r :: r :: r :: r :: r :: r :: r :: r :: Nil
     val m1 = m.par
     val m2 = DenseMatrix(r,r,r  ,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r,r)
+
+    val batchSize = 1000
 
     // Warm up
     for ( _ <- 0 to 10 ) {
@@ -33,7 +35,7 @@ class ParallelTest extends FlatSpec with ShouldMatchers {
 
 
     val t0 = now
-    for ( _ <- 0 to 100 ) {
+    for ( _ <- 0 to batchSize ) {
       val res = m1.map(_.t * r)
     }
     val d1 = now - t0
@@ -41,7 +43,7 @@ class ParallelTest extends FlatSpec with ShouldMatchers {
     println ( s"parallel: $d1")
 
     val t1 = now
-    for ( _ <- 0 to 100 ) {
+    for ( _ <- 0 to batchSize ) {
       val res = m.map(_.t * r)
     }
     val d2 = now - t1
@@ -50,7 +52,7 @@ class ParallelTest extends FlatSpec with ShouldMatchers {
 
 
     val t2 = now
-    for ( _ <- 0 to 100 ) {
+    for ( _ <- 0 to batchSize ) {
       val res = m2 * r
     }
     val d3 = now - t2

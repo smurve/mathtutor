@@ -5,11 +5,11 @@ import org.scalatest.{FlatSpec, ShouldMatchers}
 
 class SimpleBinaryClassifierTest extends FlatSpec with ShouldMatchers {
 
-  //val nn = new NeuralNetwork(Array(2, 2), Array(sigmoid(_)), INIT_WITH_RANDOM)
-  //val nn = new NeuralNetwork(Array(2, 5, 2), Array(sigmoid(_),sigmoid(_)), INIT_WITH_RANDOM)
-  val nn = new NeuralNetwork(Array(2, 5, 5, 2), Array(sigmoid(_),sigmoid(_),sigmoid(_)), INIT_WITH_RANDOM)
+  //val nn = new NeuralNetwork(Array(2, 2), Array(SIGMOID), INIT_WITH_RANDOM)
+  //val nn = new NeuralNetwork(Array(2, 5, 2), Array(SIGMOID, SIGMOID), INIT_WITH_RANDOM)
+  val nn = new NeuralNetwork(Array(2, 5, 5, 2), Array(SIGMOID,SIGMOID,SIGMOID), INIT_WITH_RANDOM)
 
-  //val nn = new NeuralNetwork(Array(2, 5, 5, 5, 2), Array(sigmoid(_),sigmoid(_),sigmoid(_),sigmoid(_)), INIT_WITH_RANDOM)
+  //val nn = new NeuralNetwork(Array(2, 5, 5, 5, 2), Array(SIGMOID, SIGMOID, SIGMOID, SIGMOID), INIT_WITH_RANDOM)
 
   val sbch = new SimpleBinaryClassifierHelper(x=>
     (x - 2 ) * ( x + 2 ) * x )
