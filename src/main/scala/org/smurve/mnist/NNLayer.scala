@@ -15,19 +15,19 @@ class NNLayer(val inputSize: Int, val outputSize: Int,
               initWith: InitWith = INIT_WITH_RANDOM,
               val costDerivative: (DV, DV)=>DV,
               activation: Activation
-             )(implicit network: NeuralNetwork) {
+             ) {
 
   private var b: DV = newBias(outputSize, initWith)
   private var w: DM = newWeight(outputSize, inputSize, initWith)
   private var n: Double = 0
 
   // containers for averaging over the sample batches
-  private var nabla_b: DV = DenseVector.zeros(outputSize)
-  private var nabla_w: DM = DenseMatrix.zeros(outputSize, inputSize)
+  private var avg_nabla_b: DV = DenseVector.zeros(outputSize)
+  private var avg_nabla_w: DM = DenseMatrix.zeros(outputSize, inputSize)
 
   private def reset() : Unit = {
-    nabla_b = DenseVector.zeros(outputSize)
-    nabla_w = DenseMatrix.zeros(outputSize, inputSize)
+    avg_nabla_b = DenseVector.zeros(outputSize)
+    avg_nabla_w = DenseMatrix.zeros(outputSize, inputSize)
     n = 0
   }
 
@@ -38,8 +38,8 @@ class NNLayer(val inputSize: Int, val outputSize: Int,
     * @param eta the learning factor
     */
   def update ( eta: Double ): Unit = {
-    w = w - nabla_w * ( eta / n)
-    b = b - nabla_b * ( eta / n)
+    w :-= avg_nabla_w * ( eta / n)
+    b :-= avg_nabla_b * ( eta / n)
     reset()
     next.foreach(_.update(eta))
   }
@@ -59,8 +59,8 @@ class NNLayer(val inputSize: Int, val outputSize: Int,
   /**
     * calculate the output, and feed it into the next layer, if there is one.
     * return this layer's output, or the next layer's output, if there is one.
-    * @param x the input
-    * @return the total output of all layers
+    * @param x the input, possibly from the previous layer
+    * @return the output of the last layer, which may be this
     */
   def feedForward ( x: DV) : DV = {
     val z = w * x + b
@@ -80,6 +80,7 @@ class NNLayer(val inputSize: Int, val outputSize: Int,
     */
   def feedForwardAndPropBack(x: DV, y: DV): DV = {
     n += 1
+
     val z = w * x + b
     val a = activation.fn ( z )
 
@@ -90,8 +91,8 @@ class NNLayer(val inputSize: Int, val outputSize: Int,
       wd :* activation.deriv(z)
     }
 
-    nabla_b += d
-    nabla_w += d * x.t
+    avg_nabla_b += d
+    avg_nabla_w += d * x.t
 
     w.t * d
   }

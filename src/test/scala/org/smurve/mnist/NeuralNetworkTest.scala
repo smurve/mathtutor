@@ -26,9 +26,9 @@ class NeuralNetworkTest extends FlatSpec with ShouldMatchers {
 
   "The squared euclidian difference" should "make a good cost function" in {
     val nn = new NeuralNetwork(Array(4,2), Array(SIGMOID), INIT_WITH_CONST)
-    nn.costFunction(DenseVector(2,1), DenseVector(2,1)) should be ( 0)
-    nn.costFunction(DenseVector(2,1), DenseVector(3,1)) should be ( .5)
-    nn.costFunction(DenseVector(2,1), DenseVector(2,0)) should be ( .5)
+    nn.euclideanCost(DenseVector(2,1), DenseVector(2,1)) should be ( 0)
+    nn.euclideanCost(DenseVector(2,1), DenseVector(3,1)) should be ( .5)
+    nn.euclideanCost(DenseVector(2,1), DenseVector(2,0)) should be ( .5)
     nn.euclideanCostDerivative(DenseVector(2,1), DenseVector(2,1)) should be ( DenseVector(0.0,0.0))
     nn.euclideanCostDerivative(DenseVector(2,1), DenseVector(3,1)) should be ( DenseVector(-1.0, 0.0))
     nn.euclideanCostDerivative(DenseVector(2,1), DenseVector(2,0)) should be ( DenseVector(0.0, 1.0))
