@@ -1,48 +1,34 @@
 package org.smurve.mnist
 
-import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.linalg.{*, DenseMatrix}
+
+import scala.collection.immutable.Seq
 
 /**
   */
-class ConvNetworkLayer(inputSize: Int, outputSize: Int,
+class ConvNetworkLayer(input_cols: Int, input_rows: Int,
+                       window_cols: Int, window_rows: Int,
+                       num_features: Int,
                        next: Option[ConvNetworkLayer] = None,
                        initWith: InitWith = INIT_WITH_RANDOM,
                        costDerivative: (DV, DV)=>DV,
-                       activation: Activation,
-                       features: DM
-             ) extends NNLayer ( inputSize, outputSize, next, initWith, costDerivative, activation) {
-
-  private val b: DV = newBias(outputSize)
-  private var w: DM = features
+                       activation: Activation
+             ) extends Layer {
 
 
+  private val window_size = window_rows * window_cols
+  private var w: DM = DenseMatrix.rand(num_features, window_size)
+
+  private val feature_cols = input_cols - window_cols + 1
+  private val feature_size = feature_cols * ( input_rows - window_rows + 1)
   private var n: Int = 0
-
-  // containers for averaging over the sample batches
-  private var avg_nabla_b: DV = DenseVector.zeros(outputSize)
-  private var avg_nabla_w: DM = DenseMatrix.zeros(outputSize, inputSize)
-
-  private def reset() : Unit = {
-    avg_nabla_b = DenseVector.zeros(outputSize)
-    avg_nabla_w = DenseMatrix.zeros(outputSize, inputSize)
-    n = 0
-  }
 
   /**
     * update all weights and biases with the average of the most recently finished sample batch
     * @param eta the learning factor
     */
   override def update ( eta: Double ): Unit = {
-    super.update(eta)
   }
-
-  /**
-    * For the time being: no bias.
-    * @param size the size of the output layer
-    * @return
-    */
-  private def newBias ( size: Int ) : DV =
-      DenseVector.fill(size){0.0}
 
 
   /**
@@ -51,14 +37,27 @@ class ConvNetworkLayer(inputSize: Int, outputSize: Int,
     * @param x the input, possibly from the previous layer
     * @return the output of the last layer, which may be this
     */
-  override def feedForward ( x: DV) : DV = {
-    val z = w * x + b
-    val a = activation.fn ( z )
-    if ( next.isEmpty) a else next.get.feedForward(a)
+  override def feedForward ( x: DV ) : DV = {
+
+    val a: DV = null
+
+    val fmaps: Array[Array[Double]] = ( 0 until num_features).map(n=>calcFMap(n, x)).toArray
+
+
+    if (next.isEmpty) {
+      a
+    } else {
+      next.get.feedForward(a)
+    }
   }
 
-  override def toString : String = {
-    w.toString + "\n\n" + b.toString + "\n"
+  def calcFMap ( n: Int, input: DV ): Array[Double] = {
+    ( 0 until feature_size ).map ( k => {
+      (0 until window_size).map(j => {
+        w(n, j) * input(tau(k, j))
+      }).sum
+    }).toArray
+
   }
 
   /**
@@ -68,22 +67,18 @@ class ConvNetworkLayer(inputSize: Int, outputSize: Int,
     * @return the weighted delta for back propagation: W  *  d
     */
   override def feedForwardAndPropBack(x: DV, y: DV): DV = {
-    n += 1
-
-    val z = w * x + b
-    val a = activation.fn ( z )
-
-    val d = if (next.isEmpty) {
-      costDerivative(a, y)
-    } else {
-      val wd = next.get.feedForwardAndPropBack( a, y)
-      wd :* activation.deriv(z)
-    }
-
-    avg_nabla_b += d
-    avg_nabla_w += d * x.t
-
-    w.t * d
+    null
   }
+
+
+
+  @inline
+  def tau ( k: Int, j: Int ) : Int = phi ( j ) + xi ( k )
+
+  @inline
+  def phi ( j: Int ) : Int = j % window_cols + j / window_cols * window_cols
+
+  @inline
+  def xi ( k: Int ) : Int = k / feature_cols * input_cols + k % feature_cols
 
 }

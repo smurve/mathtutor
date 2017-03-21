@@ -7,10 +7,7 @@
     TeX: { equationNumbers: {autoNumber: "AMS"} },
     displayAlign: "left"
     });
-
-
     </script>
-
     <script type="text/javascript" async
             src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
     </script>
@@ -26,11 +23,45 @@
         matrix representation
     </p>
     <p>
-        Let furthermore \( \chi^m \) be the mth input vector (image)
+        Let furthermore \( \chi^m \) be the mth input vector (image), \(D_p\) the size of the convolution window, with
+        \(D_p=c_p \cdot r_p\) the product of row count times column count, then we calculate the value of the feature matrix
+        \(\mathcal{F}\)at index k as
     </p>
     <p>
-        Then \( \mathcal{
+        \begin{equation}
+        \mathcal{F}_k^n(\chi^m) = \sum_{j=0}^{D_p-1} w^n_j \cdot \chi^m_{\xi(k)+\phi(j)}
+        \end{equation}
     </p>
+    <p>Using integer division, the offset \(\xi(k) \) and the projection index \(\phi(j)\) are defined by</p>
+    <p>
+        \begin{equation}
+            \xi(k) = c_\chi \cdot \frac{k}{c_\mathcal{F}} + k \bmod c_\mathcal{F}
+        \end{equation}
+    </p>
+    <p>and</p>
+    <p>
+        \begin{equation}
+        \phi(j) = j \bmod c_p + \frac{j}{c_p} \cdot c_p
+        \end{equation}
+    </p>
+    <p>Defining</p>
+    <p>
+        \begin{equation}
+        \tau(k,j) = \phi(j) + \xi(k)
+        \end{equation}
+    </p>
+    <p>Equation 1) becomes </p>
+    <p>
+        \begin{equation}
+        \mathcal{F}_k^n(\chi^m) = \sum_{j=0}^{D_p-1} w^n_j \cdot \chi^m_{\tau(k,j)}
+        \end{equation}
+    </p>
+
+    <p>
+        which we implement as
+    </p>
+
+
 </div>
 </body>
 </html>
