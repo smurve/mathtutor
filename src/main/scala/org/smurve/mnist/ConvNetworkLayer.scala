@@ -1,84 +1,122 @@
 package org.smurve.mnist
 
-import breeze.linalg.{*, DenseMatrix}
+import breeze.linalg.DenseVector
 
-import scala.collection.immutable.Seq
 
 /**
   */
-class ConvNetworkLayer(input_cols: Int, input_rows: Int,
-                       window_cols: Int, window_rows: Int,
-                       num_features: Int,
-                       next: Option[ConvNetworkLayer] = None,
-                       initWith: InitWith = INIT_WITH_RANDOM,
-                       costDerivative: (DV, DV)=>DV,
-                       activation: Activation
-             ) extends Layer {
+class ConvNetworkLayer(frame: ConvolutionFrame,
+                       num_features: Int = 1,
+                       next: Option[Layer] = None,
+                       costDerivative: Option[(DV, DV) => DV] = None,
+                       activation: Activation = UNIT
+                      ) extends Layer {
+
+  def featureMaps : List[String] = List("Finished")
 
 
-  private val window_size = window_rows * window_cols
-  private var w: DM = DenseMatrix.rand(num_features, window_size)
+  private var w = Array.fill(num_features)(DenseVector.rand[Double](frame.size_window))
 
-  private val feature_cols = input_cols - window_cols + 1
-  private val feature_size = feature_cols * ( input_rows - window_rows + 1)
-  private var n: Int = 0
+
+  private var sum_nabla_w : Array[DV] = zeroes
+  private var n = 0
 
   /**
     * update all weights and biases with the average of the most recently finished sample batch
+    *
     * @param eta the learning factor
     */
-  override def update ( eta: Double ): Unit = {
+  override def update(eta: Double): Unit = {
+    w = w.zip(sum_nabla_w).map(p => p._1 + p._2 * (eta/n) )
+    sum_nabla_w = zeroes
+    n = 0
+    next.foreach(_.update(eta))
+
   }
+
+  def setFeatures(weights: Array[DV]): Unit = {
+    assert(weights.length == num_features)
+    assert(weights(0).length == frame.size_window)
+    w = weights
+  }
+
+  private def zeroes: Array[DV] =
+    Array.fill(num_features)(DenseVector.zeros[Double](frame.size_window))
 
 
   /**
     * calculate the output, and feed it into the next layer, if there is one.
     * return this layer's output, or the next layer's output, if there is one.
+    *
     * @param x the input, possibly from the previous layer
     * @return the output of the last layer, which may be this
     */
-  override def feedForward ( x: DV ) : DV = {
+  override def feedForward(x: DV): DV = {
 
-    val a: DV = null
-
-    val fmaps: Array[Array[Double]] = ( 0 until num_features).map(n=>calcFMap(n, x)).toArray
-
-
-    if (next.isEmpty) {
-      a
-    } else {
-      next.get.feedForward(a)
-    }
+    next.get.feedForward(output(x))
   }
 
-  def calcFMap ( n: Int, input: DV ): Array[Double] = {
-    ( 0 until feature_size ).map ( k => {
-      (0 until window_size).map(j => {
-        w(n, j) * input(tau(k, j))
+
+  /**
+    * This is where the actual convolution happens
+    * @param f the index of the feature to be convoluted
+    * @param input the layer's input vector
+    * @return the resulting feature map
+    */
+  def convolute(f: Int, input: DV): Array[Double] = {
+    (0 until frame.size_featureMap).map(k => {
+      (0 until frame.size_window).map(j => {
+        w(f)(j) * input(frame.tau(k, j))
       }).sum
     }).toArray
-
   }
 
   /**
+    * Calculates the output as a single Vector combining all feature maps
+    * @param x the input vector
+    * @return
+    */
+  def output(x: DV): DenseVector[Double] =
+    DenseVector((0 until num_features).flatMap(n => convolute(n, x)).toArray[Double])
+
+  /**
     * Feed forward and store the results for back propagation
+    *
     * @param x the input vector
     * @param y the desired output                        T
     * @return the weighted delta for back propagation: W  *  d
     */
   override def feedForwardAndPropBack(x: DV, y: DV): DV = {
-    null
+    n += 1
+
+    val z = output (x)
+    val a = activation.fn(z)
+
+    val delta_l = if ( next.isEmpty )
+      costDerivative.get.apply(a,y)
+    else {
+      val wd = next.get.feedForwardAndPropBack(a, y)
+      wd :* activation.deriv(z)
+    }
+
+    val dC_dw = (0 until num_features).map(
+      n=>{ // for each feature map
+      val delta: Array[Double] = (0 until frame.size_window) . map (
+        j => // fix the index of the weight
+        (0 until frame.size_featureMap).map(
+          k => { // sum up all components of x that contribute to w_j
+            val kn = k + n * frame.size_featureMap
+            delta_l(kn) * x(frame.tau(k, j))
+        }).sum).toArray
+
+      DenseVector(delta)
+    })
+
+    // sum up the contribution of this input vector to nabla w
+    sum_nabla_w = sum_nabla_w.zip(dC_dw).map(p => p._1 + p._2)
+
+
+    null // up to now, we can't support back prop from here
   }
-
-
-
-  @inline
-  def tau ( k: Int, j: Int ) : Int = phi ( j ) + xi ( k )
-
-  @inline
-  def phi ( j: Int ) : Int = j % window_cols + j / window_cols * window_cols
-
-  @inline
-  def xi ( k: Int ) : Int = k / feature_cols * input_cols + k % feature_cols
 
 }

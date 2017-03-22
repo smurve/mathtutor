@@ -2,7 +2,6 @@ package org.smurve
 
 import breeze.linalg._
 
-import scala.collection.immutable.Seq
 import scala.language.implicitConversions
 
 
@@ -11,9 +10,23 @@ import scala.language.implicitConversions
   */
 package object mnist {
 
-  case class Activation(fn: DenseVector[Double] => DenseVector[Double], deriv: DenseVector[Double] => DenseVector[Double]) {}
+  case class Activation
+  (
+    fn: DenseVector[Double] => DenseVector[Double],
+    deriv: DenseVector[Double] => DenseVector[Double]) {
+  }
+
+  case class CostFunction
+  (
+    fn: (DV, DV) => Double,
+    deriv: ( DV, DV ) => DV
+  )
+
+  val EUCLIDEAN = CostFunction ( euclideanCost, euclideanCostDerivative)
 
   val SIGMOID: Activation = Activation(sigmoid, sigmoid_prime)
+
+  val UNIT: Activation = Activation(x => x, x => DenseVector.ones(x.length))
 
   def sigmoid(v: DenseVector[Double]): DenseVector[Double] = {
     DenseVector(v.map(xi => 1 / (1 + math.exp(-xi))).toArray)
@@ -23,6 +36,13 @@ package object mnist {
     val s = sigmoid(v)
     DenseVector(s.map(si => si * (1 - si)).toArray)
   }
+
+  def euclideanCost(finalActivation: DV, desired: DV): Double = {
+    val diff = finalActivation - desired
+    (.5 * diff.t * diff).toArray.apply(0)
+  }
+
+  def euclideanCostDerivative(finalActivation: DV, desired: DV): DV = finalActivation - desired
 
 
   type DV = DenseVector[Double]
@@ -43,39 +63,25 @@ package object mnist {
     DenseVector(a.par.map(x => x.t * v).toArray)
   }
 
-  /*
-  def convolute(input: DV, imgWidth: Int, imgHeight: Int, winWidth: Int, winHeight: Int, featureMatrix: DM, fweights: DV ): DV = {
 
-    val inputXRange = 0 until imgWidth - winWidth + 1
-    val inputYRange = 0 until imgHeight - winHeight + 1
-    val inputArray = input.toArray
-
-    // seq is the sequence of index pairs mapping from the input image to the convoluted image
-    val seq = for {
-      y <- inputYRange
-      x <- inputXRange
-    } yield (x + imgWidth * y, x + inputXRange * y)
-
-
-    val resArray = seq.map(p => {
-      val i_inp = p._1
-      val i_out = p._2
-      val features = featureMatrix * proj(i_inp, winWidth, winHeight, input, imgWidth)
-      fweights.t * features
-    }).toArray
-
-    DenseVector(resArray)
-
-  }*/
-
-
-
-  def proj(start: Int, wWidth: Int, wHeight: Int, input: DV, inputWidth: Int ) : DV = {
-    val seq = (0 until wHeight).flatMap(y=> (0 until wWidth).map({
-      x=>input.toArray.apply(start + x+y*inputWidth)
+  def proj(start: Int, wWidth: Int, wHeight: Int, input: DV, inputWidth: Int): DV = {
+    val seq = (0 until wHeight).flatMap(y => (0 until wWidth).map({
+      x => input.toArray.apply(start + x + y * inputWidth)
     }))
 
 
     DenseVector(seq.toArray)
   }
+
+  /**
+    * determine the number with the max confidence
+    *
+    * @param y the result vector of the network
+    * @return the index with the largest value
+    */
+  def asNumber(y: DV): Int = {
+    y.data.zipWithIndex.fold((0.0, 1))((l, r) => if (l._1 < r._1) r else l)._2
+  }
+
+
 }

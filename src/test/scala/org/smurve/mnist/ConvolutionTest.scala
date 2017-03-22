@@ -8,46 +8,81 @@ import org.scalatest.{FlatSpec, ShouldMatchers}
   */
 class ConvolutionTest extends FlatSpec with ShouldMatchers {
 
-  "Convolution" should "work like a dream" in {
 
-    val image = new MNISTImageFile("train").img(0)
+  "A convolution frame" should "select the right indexes" in {
 
-    println(image)
+    val frame = ConvolutionFrame(input_cols = 28, input_rows = 28, window_cols = 4, window_rows = 3)
+    frame.size_featureMap should be((28 - 4 + 1) * (28 - 3 + 1))
+    frame.tau(27, 0) should be(28 + 2)
+    //println(frame.tau(27).toList)
+  }
 
-    val features = DenseMatrix((
-      -1.0,-1.0,-1.0,-1.0,
-      -1.0,-1.0,-1.0,-1.0,
-      +1.0,+1.0,+1.0,+1.0,
-      +1.0,+1.0,+1.0,+1.0
-    ))
+  "A convolution network" should "scan the input vector" in {
+    val input = DenseVector(
+      1.0, 2, 3, 4, 5,
+      6, 7, 8, 9, 10,
+      11, 12, 13, 14, 15,
+      16, 17, 18, 19, 20,
+      21, 22, 23, 24, 25)
 
-    val fweights = DenseVector(1.0)
+    val frame = ConvolutionFrame(5, 5, 3, 2)
 
-    val res = convolute(image.dv, 28, 28, 4,4, features, fweights = fweights)
-    val resImage = MNISTImage(toByteArray(res), 25, 25)
+    val layer = new ConvNetworkLayer(frame = frame, num_features = 1, activation = SIGMOID, costDerivative = None)
 
-    println (resImage)
+    layer.setFeatures(Array(DenseVector(1, 1, 1, 1, 1, 1)))
+
+    val features = layer.convolute(0, input)
+
+    features should be(Array(27.0, 33, 39, 57, 63, 69, 87, 93, 99, 117, 123, 129))
+
+  }
+
+  "A convolutional network" should "localize certain features" in {
+    val input = DenseVector(
+      0.0, 0, 0, 0, 0, 0, 0, 1,
+      0.0, 0, 1, 0, 0, 0, 0, 0,
+      0.0, 1, 0, 1, 0, 0, 1, 0,
+      0.0, 1, 1, 1, 0, 0, 0, 0,
+      0.0, 0, 0, 0, 0, 0, 0, 0,
+      1.0, 0, 1, 0, 0, 1, 0, 0,
+      0.0, 1, 0, 0, 1, 0, 1, 0,
+      1.0, 0, 1, 0, 1, 1, 1, 0
+    )
+
+    val frame = ConvolutionFrame(8, 8, 3, 3)
+
+    val layer = new ConvNetworkLayer(frame = frame, num_features = 2, activation = SIGMOID, costDerivative = None)
+
+    layer.setFeatures(Array(
+      DenseVector(
+        0, 1, 0.0,
+        1, 0, 1,
+        1, 1, 1),
+      DenseVector(
+        1, 0, 1.0,
+        0, 1, 0,
+        1, 0, 1))
+    )
+
+    println("Circles:")
+    println(MNISTImage(toByteArray(DenseVector(layer.convolute(0, input))), 6, 6))
+    println("Crosses:")
+    println(MNISTImage(toByteArray(DenseVector(layer.convolute(1, input))), 6, 6))
+
   }
 
 
-  "proj()" should "return a subimage of the given image" in {
-    val input = Array(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250)
-    val img = MNISTImage(input.map(_.toByte), 5, 5)
-    val prj = proj(0,3,3,img)
-    prj should be (DenseVector(10.0, 20.0, 30.0, 60.0, 70.0, 80.0, 110.0, 120.0, -126.0))
-    proj(7,3,3,img) should be (DenseVector(80.0, 90.0, 100.0, -126.0, -116.0, -106.0, -76.0, -66.0, -56.0))
-  }
-
-
-  "toByteArray" should "work" in {
+  "toByteArray" should "linearly scale any vector to elements with values between 0 and 255" in {
     val res = toByteArray(DenseVector(-4, -2, -1, 4.0))
-    res should be ( Array(0, 63, 95, -1))
+    res should be(Array(0, 63, 95, -1))
   }
 
-  def toByteArray ( v: DV ) : Array[Byte] = {
+  def toByteArray(v: DV): Array[Byte] = {
     val maxV = max(v)
     val minV = min(v)
+
     def scale = 255 / (maxV - minV)
-    v.toArray.map(x=>((x - minV) * scale).toByte )
+
+    v.toArray.map(x => ((x - minV) * scale).toByte)
   }
 }

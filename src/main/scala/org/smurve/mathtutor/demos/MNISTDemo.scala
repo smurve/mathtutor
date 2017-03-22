@@ -31,16 +31,6 @@ object MNISTDemo {
   def now: Long = System.currentTimeMillis
 
 
-  /**
-    * determine the number with the max confidence
-    *
-    * @param y the result vector of the network
-    * @return the index with the largest value
-    */
-  def asNumber(y: DV): Int = {
-    y.data.zipWithIndex.fold((0.0, 1))((l, r) => if (l._1 < r._1) r else l)._2
-  }
-
   def go(): Unit = main(Array(""))
 
   def main(args: Array[String]): Unit = {

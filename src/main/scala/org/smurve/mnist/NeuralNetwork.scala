@@ -13,12 +13,12 @@ class NeuralNetwork(val ioSizes: Array[Int], val activations: Array[Activation],
 
   assert(ioSizes.length - 1 == activations.length,"Number of activation functions does not match!")
 
-  val layers = new Array[NNLayer](ioSizes.length - 1)
+  val layers = new Array[FullyConnectedLayer](ioSizes.length - 1)
 
-  var prev: Option[NNLayer] = None
+  var prev: Option[FullyConnectedLayer] = None
   for (i <- layers.length - 1 to 0 by -1) {
-    layers(i) = new NNLayer(ioSizes(i), ioSizes(i + 1), prev, initWith,
-      euclideanCostDerivative, activations(i))
+    layers(i) = new FullyConnectedLayer(ioSizes(i), ioSizes(i + 1), prev, initWith,
+      EUCLIDEAN, activations(i))
     prev = Some(layers(i))
   }
 
@@ -45,12 +45,5 @@ class NeuralNetwork(val ioSizes: Array[Int], val activations: Array[Activation],
   def train(sample: (DV, DV)): DV = {
     layers(0).feedForwardAndPropBack(sample._1, sample._2)
   }
-
-  def euclideanCost(finalActivation: DV, desired: DV): Double = {
-    val diff = finalActivation - desired
-    (.5 * diff.t * diff).toArray.apply(0)
-  }
-
-  def euclideanCostDerivative(finalActivation: DV, desired: DV): DV = finalActivation - desired
 
 }

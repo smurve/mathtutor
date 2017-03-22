@@ -63,7 +63,20 @@ class LineChart()(implicit spec: PlotterSpec) extends ApplicationFrame("Chart") 
     dataSet.removeAllSeries()
   }
 
-  def showFun(fun: Fun, left: Double, right: Double, numValues: Int) {
+  def showData( data: List[Double] ): Unit = {
+
+    val series = new XYSeries("Time Series")
+    val dx = 1
+    val numValues = data.size
+    (0 until numValues).foreach(n => {
+      val x = 0 + n * dx
+      series.add(x, data(n))
+    })
+    dataSet.addSeries(series)
+  }
+
+
+  def showFun(fun: Fun, left: Double, right: Double, numValues: Int): Unit = {
 
     val series = new XYSeries(fun.toString)
     val dx = (right - left) / numValues

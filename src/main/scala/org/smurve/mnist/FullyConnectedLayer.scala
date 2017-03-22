@@ -10,12 +10,12 @@ import breeze.linalg.{DenseMatrix, DenseVector}
   * @param next an optional next layer. if None, this is the output layer of the network
   * @param initWith choose random or constant = 0.5 for all initial values for bias and weight
   */
-class NNLayer(val inputSize: Int, val outputSize: Int,
-              val next: Option[NNLayer] = None,
-              initWith: InitWith = INIT_WITH_RANDOM,
-              val costDerivative: (DV, DV)=>DV,
-              activation: Activation
-             ) {
+class FullyConnectedLayer(val inputSize: Int, val outputSize: Int,
+                          val next: Option[Layer] = None,
+                          initWith: InitWith = INIT_WITH_RANDOM,
+                          costFunction: CostFunction = EUCLIDEAN,
+                          activation: Activation = SIGMOID
+             ) extends Layer {
 
   private var b: DV = newBias(outputSize, initWith)
   private var w: DM = newWeight(outputSize, inputSize, initWith)
@@ -24,10 +24,13 @@ class NNLayer(val inputSize: Int, val outputSize: Int,
   // containers for averaging over the sample batches
   private var avg_nabla_b: DV = DenseVector.zeros(outputSize)
   private var avg_nabla_w: DM = DenseMatrix.zeros(outputSize, inputSize)
+  var avg_cost_by_time: List[Double] = List()
+  private var sum_cost: Double = 0.0
 
   private def reset() : Unit = {
     avg_nabla_b = DenseVector.zeros(outputSize)
     avg_nabla_w = DenseMatrix.zeros(outputSize, inputSize)
+    sum_cost = 0
     n = 0
   }
 
@@ -40,9 +43,12 @@ class NNLayer(val inputSize: Int, val outputSize: Int,
   def update ( eta: Double ): Unit = {
     w :-= avg_nabla_w * ( eta / n)
     b :-= avg_nabla_b * ( eta / n)
+    avg_cost_by_time = sum_cost / n :: avg_cost_by_time
     reset()
     next.foreach(_.update(eta))
   }
+
+  def costByTime: List[Double] = avg_cost_by_time.reverse
 
   private def newBias ( size: Int, initWith: InitWith ) : DV =
     if ( initWith == INIT_WITH_RANDOM )
@@ -84,8 +90,10 @@ class NNLayer(val inputSize: Int, val outputSize: Int,
     val z = w * x + b
     val a = activation.fn ( z )
 
+
     val d = if (next.isEmpty) {
-      costDerivative(a, y)
+      sum_cost += costFunction.fn(a, y)
+      costFunction.deriv(a, y)
     } else {
       val wd = next.get.feedForwardAndPropBack( a, y)
       wd :* activation.deriv(z)
