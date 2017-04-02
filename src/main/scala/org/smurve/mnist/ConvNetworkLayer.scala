@@ -10,7 +10,7 @@ class ConvNetworkLayer(frame: ConvolutionFrame,
                        num_features: Int = 1,
                        next: Option[MNISTLayer] = None,
                        costDerivative: Option[(DV, DV) => DV] = None,
-                       activation: Activation = UNIT
+                       activation: Activation = IDENTITY
                       ) extends MNISTLayer(1) {
 
   def featureMaps: List[String] = List("Finished")

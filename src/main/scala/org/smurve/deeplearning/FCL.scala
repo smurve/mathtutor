@@ -9,7 +9,7 @@ import breeze.linalg.{DenseMatrix, DenseVector}
 class FCL (inputSize: Int,
            initWith: InitWith = INIT_WITH_CONST,
            initialValue: Double = .5,
-           inputActivation: Activation = UNIT )
+           inputActivation: Activation = IDENTITY )
 
   extends Layer( inputSize ) {
 

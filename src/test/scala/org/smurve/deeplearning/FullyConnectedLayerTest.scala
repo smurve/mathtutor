@@ -13,7 +13,7 @@ class FullyConnectedLayerTest extends FlatSpec with ShouldMatchers {
     val input = new FCL ( inputSize = 4, initialValue = 1.0 )
     val hidden1 = new FCL ( inputSize = 3, initialValue = 1.0 )
     val hidden2 = new FCL ( inputSize = 2, initialValue = 1.0 )
-    val out = new OL( inputSize = 2, activation = UNIT, EUCLIDEAN )
+    val out = new OL( inputSize = 2, activation = IDENTITY, EUCLIDEAN )
 
     // stack'em: Only now the weights are initialized
     val nn: NeuralNetwork = input º hidden1 º hidden2 º out
@@ -28,16 +28,18 @@ class FullyConnectedLayerTest extends FlatSpec with ShouldMatchers {
 
   }
 
-  "A linear network" should "learn a simple concept" in {
+  "A linear network" should "easily learn the simple concept of linear separability" in {
 
-    val input = new FCL ( inputSize = 4, initWith = INIT_WITH_RANDOM)
-    val hidden1 = new FCL ( inputSize = 3, initWith = INIT_WITH_RANDOM )
-    val hidden2 = new FCL ( inputSize = 2, initWith = INIT_WITH_RANDOM )
+    // We're using two hidden layers just to make it a bit more complex. A single layer would do.
+    val input = new FCL ( inputSize = 4, initWith = INIT_WITH_RANDOM, inputActivation=IDENTITY)
+    val hidden1 = new FCL ( inputSize = 3, initWith = INIT_WITH_RANDOM, inputActivation=RELU )
+    val hidden2 = new FCL ( inputSize = 2, initWith = INIT_WITH_RANDOM, inputActivation=RELU )
     val out = new OL( inputSize = 2, activation = SIGMOID, EUCLIDEAN )
 
     // stack'em: Only now the weights are initialized
     val nn: NeuralNetwork = input º hidden1 º hidden2 º out
 
+    // train with 1000 randomly created samples
     for ( _ <- 0 to 1000 ) {
       val nextTest = rnd()
       nn.feedForwardAndPropBack(nextTest._1, nextTest._2)
@@ -45,12 +47,18 @@ class FullyConnectedLayerTest extends FlatSpec with ShouldMatchers {
       nn.update(0.1)
     }
 
-    for ( _  <- 0 to 10 ) {
+    var sum_good = 0.0
+    val N_SAMPLES = 100
+    for ( _  <- 0 to N_SAMPLES ) {
       val nextTest = rnd()
       val res = nn.feedForward(nextTest._1)
-      println(nextTest._1)
-      println(res.data(0) - res.data(1), nextTest._2.data(0) - nextTest._2.data(1))
+      //println(nextTest._1)
+      val actual = res.data(0) - res.data(1)
+      val desired = nextTest._2.data(0) - nextTest._2.data(1)
+      println(actual, desired)
+      if ( desired * actual > 0 ) sum_good += 1
     }
+    println(s"\nSuccess rate: ${sum_good / N_SAMPLES * 100}%")
 
   }
 
