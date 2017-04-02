@@ -1,6 +1,8 @@
 package org.smurve.mnist
 
 import org.scalatest.{FlatSpec, ShouldMatchers}
+import org.smurve.deeplearning.INIT_WITH_RANDOM
+import org.smurve.deeplearning.SIGMOID
 
 class SimpleShapeTest extends FlatSpec with ShouldMatchers {
 

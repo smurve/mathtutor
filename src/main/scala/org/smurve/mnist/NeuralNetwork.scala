@@ -1,4 +1,5 @@
 package org.smurve.mnist
+import org.smurve.deeplearning._
 
 
 /**

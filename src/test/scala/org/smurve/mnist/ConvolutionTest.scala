@@ -1,7 +1,8 @@
 package org.smurve.mnist
 
-import breeze.linalg.{DenseMatrix, DenseVector, max, min}
+import breeze.linalg.{DenseVector, max, min}
 import org.scalatest.{FlatSpec, ShouldMatchers}
+import org.smurve.deeplearning.{DV, SIGMOID}
 
 /**
   * Created by wgiersche on 19/03/17.

@@ -1,6 +1,7 @@
 package org.smurve.mnist
 
 import breeze.linalg.DenseVector
+import org.smurve.deeplearning._
 
 
 /**

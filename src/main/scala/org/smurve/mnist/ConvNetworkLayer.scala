@@ -1,24 +1,25 @@
 package org.smurve.mnist
 
 import breeze.linalg.DenseVector
+import org.smurve.deeplearning._
 
 
 /**
   */
 class ConvNetworkLayer(frame: ConvolutionFrame,
                        num_features: Int = 1,
-                       next: Option[Layer] = None,
+                       next: Option[MNISTLayer] = None,
                        costDerivative: Option[(DV, DV) => DV] = None,
                        activation: Activation = UNIT
-                      ) extends Layer {
+                      ) extends MNISTLayer(1) {
 
-  def featureMaps : List[String] = List("Finished")
+  def featureMaps: List[String] = List("Finished")
 
 
   private var w = Array.fill(num_features)(DenseVector.rand[Double](frame.size_window))
 
 
-  private var sum_nabla_w : Array[DV] = zeroes
+  private var sum_nabla_w: Array[DV] = zeroes
   private var n = 0
 
   /**
@@ -27,7 +28,7 @@ class ConvNetworkLayer(frame: ConvolutionFrame,
     * @param eta the learning factor
     */
   override def update(eta: Double): Unit = {
-    w = w.zip(sum_nabla_w).map(p => p._1 + p._2 * (eta/n) )
+    w = w.zip(sum_nabla_w).map(p => p._1 + p._2 * (eta / n))
     sum_nabla_w = zeroes
     n = 0
     next.foreach(_.update(eta))
@@ -59,7 +60,8 @@ class ConvNetworkLayer(frame: ConvolutionFrame,
 
   /**
     * This is where the actual convolution happens
-    * @param f the index of the feature to be convoluted
+    *
+    * @param f     the index of the feature to be convoluted
     * @param input the layer's input vector
     * @return the resulting feature map
     */
@@ -73,6 +75,7 @@ class ConvNetworkLayer(frame: ConvolutionFrame,
 
   /**
     * Calculates the output as a single Vector combining all feature maps
+    *
     * @param x the input vector
     * @return
     */
@@ -89,28 +92,28 @@ class ConvNetworkLayer(frame: ConvolutionFrame,
   override def feedForwardAndPropBack(x: DV, y: DV): DV = {
     n += 1
 
-    val z = output (x)
+    val z = output(x)
     val a = activation.fn(z)
 
-    val delta_l = if ( next.isEmpty )
-      costDerivative.get.apply(a,y)
+    val delta_l = if (next.isEmpty)
+      costDerivative.get.apply(a, y)
     else {
       val wd = next.get.feedForwardAndPropBack(a, y)
       wd :* activation.deriv(z)
     }
 
     val dC_dw = (0 until num_features).map(
-      n=>{ // for each feature map
-      val delta: Array[Double] = (0 until frame.size_window) . map (
-        j => // fix the index of the weight
-        (0 until frame.size_featureMap).map(
-          k => { // sum up all components of x that contribute to w_j
-            val kn = k + n * frame.size_featureMap
-            delta_l(kn) * x(frame.tau(k, j))
-        }).sum).toArray
+      n => { // for each feature map
+        val delta: Array[Double] = (0 until frame.size_window).map(
+          j => // fix the index of the weight
+            (0 until frame.size_featureMap).map(
+              k => { // sum up all components of x that contribute to w_j
+                val kn = k + n * frame.size_featureMap
+                delta_l(kn) * x(frame.tau(k, j))
+              }).sum).toArray
 
-      DenseVector(delta)
-    })
+        DenseVector(delta)
+      })
 
     // sum up the contribution of this input vector to nabla w
     sum_nabla_w = sum_nabla_w.zip(dC_dw).map(p => p._1 + p._2)

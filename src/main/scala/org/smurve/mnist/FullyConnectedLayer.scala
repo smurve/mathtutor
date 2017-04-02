@@ -1,6 +1,8 @@
 package org.smurve.mnist
 
 import breeze.linalg.{DenseMatrix, DenseVector}
+import org.smurve.deeplearning
+import org.smurve.deeplearning._
 
 /**
   * A neural network layer. Here, a layer shall be understood as the mapping of an input vector to an output vector
@@ -10,12 +12,12 @@ import breeze.linalg.{DenseMatrix, DenseVector}
   * @param next an optional next layer. if None, this is the output layer of the network
   * @param initWith choose random or constant = 0.5 for all initial values for bias and weight
   */
-class FullyConnectedLayer(val inputSize: Int, val outputSize: Int,
-                          val next: Option[Layer] = None,
+class FullyConnectedLayer(inputSize: Int, val outputSize: Int,
+                          val next: Option[MNISTLayer] = None,
                           initWith: InitWith = INIT_WITH_RANDOM,
                           costFunction: CostFunction = EUCLIDEAN,
                           activation: Activation = SIGMOID
-             ) extends Layer {
+             ) extends MNISTLayer(inputSize) {
 
   private var b: DV = newBias(outputSize, initWith)
   private var w: DM = newWeight(outputSize, inputSize, initWith)

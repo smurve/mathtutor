@@ -1,6 +1,8 @@
 package org.smurve.mathtutor.demos
 
 import org.smurve.mnist._
+import org.smurve.deeplearning._
+import org.smurve.mnist
 
 object MNISTDemo {
 
@@ -25,7 +27,7 @@ object MNISTDemo {
   val lbls: MNISTLabelFile = new MNISTLabelFile("train-labels")
 
   //val nn = new NeuralNetwork(Array(IMAGE_SIZE, FIRST_HIDDEN_LAYER_SIZE, 100, 10), Array(sigmoid(_), sigmoid(_), sigmoid(_)),INIT_WITH_RANDOM)
-  val nn = new NeuralNetwork(Array(IMAGE_SIZE, FIRST_HIDDEN_LAYER_SIZE, 10), Array(SIGMOID, SIGMOID), INIT_WITH_RANDOM)
+  val nn = new mnist.NeuralNetwork(Array(IMAGE_SIZE, FIRST_HIDDEN_LAYER_SIZE, 10), Array(SIGMOID, SIGMOID), INIT_WITH_RANDOM)
   //val nn = new NeuralNetwork(Array(IMAGE_SIZE, 10), Array(sigmoid(_)),INIT_WITH_RANDOM)
 
   def now: Long = System.currentTimeMillis

@@ -3,6 +3,8 @@ package org.smurve.mathtutor.demos
 import java.awt.Color
 
 import org.smurve.mnist._
+import org.smurve.deeplearning._
+import org.smurve.mnist
 
 /**
   * Created by wgiersche on 14/03/17.
@@ -14,7 +16,7 @@ object NeuralNetworkDemo {
   val N_VALIDATE = 20000
 
   def main(args: Array[String]): Unit = {
-    val nn = new NeuralNetwork(Array(2, 5, 5, 2), Array(SIGMOID, SIGMOID, SIGMOID), INIT_WITH_RANDOM)
+    val nn = new mnist.NeuralNetwork(Array(2, 5, 5, 2), Array(SIGMOID, SIGMOID, SIGMOID), INIT_WITH_RANDOM)
 
     val f = (x:Double) => 0.1 * (x - 3.5) * (x - 1) * (x + 3.5) * x
 

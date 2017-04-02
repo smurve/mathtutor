@@ -3,54 +3,13 @@ package org.smurve
 import breeze.linalg._
 
 import scala.language.implicitConversions
+import org.smurve.deeplearning._
 
 
 /**
   * Created by wgiersche on 11.03.17.
   */
 package object mnist {
-
-  case class Activation
-  (
-    fn: DenseVector[Double] => DenseVector[Double],
-    deriv: DenseVector[Double] => DenseVector[Double]) {
-  }
-
-  case class CostFunction
-  (
-    fn: (DV, DV) => Double,
-    deriv: ( DV, DV ) => DV
-  )
-
-  val EUCLIDEAN = CostFunction ( euclideanCost, euclideanCostDerivative)
-
-  val SIGMOID: Activation = Activation(sigmoid, sigmoid_prime)
-
-  val UNIT: Activation = Activation(x => x, x => DenseVector.ones(x.length))
-
-  def sigmoid(v: DenseVector[Double]): DenseVector[Double] = {
-    DenseVector(v.map(xi => 1 / (1 + math.exp(-xi))).toArray)
-  }
-
-  def sigmoid_prime(v: DenseVector[Double]): DenseVector[Double] = {
-    val s = sigmoid(v)
-    DenseVector(s.map(si => si * (1 - si)).toArray)
-  }
-
-  def euclideanCost(finalActivation: DV, desired: DV): Double = {
-    val diff = finalActivation - desired
-    (.5 * diff.t * diff).toArray.apply(0)
-  }
-
-  def euclideanCostDerivative(finalActivation: DV, desired: DV): DV = finalActivation - desired
-
-
-  type DV = DenseVector[Double]
-  type DM = DenseMatrix[Double]
-
-  type InitWith = String
-  val INIT_WITH_RANDOM: InitWith = "RANDOM"
-  val INIT_WITH_CONST: InitWith = "CONST"
 
   implicit def toDouble(n: Int): Double = n.toDouble
 

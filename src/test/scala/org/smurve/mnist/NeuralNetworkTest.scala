@@ -2,6 +2,10 @@ package org.smurve.mnist
 
 import breeze.linalg.DenseVector
 import org.scalatest.{FlatSpec, ShouldMatchers}
+import org.smurve.deeplearning.SIGMOID
+import org.smurve.deeplearning.EUCLIDEAN
+import org.smurve.deeplearning.INIT_WITH_RANDOM
+import org.smurve.deeplearning.INIT_WITH_CONST
 
 class NeuralNetworkTest extends FlatSpec with ShouldMatchers {
 

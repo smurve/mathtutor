@@ -1,6 +1,7 @@
 package org.smurve.mnist
 
 import breeze.linalg.DenseVector
+import org.smurve.deeplearning._
 
 /**
   * A simple problem: the largest sum of any two weights determines, whether the "image" is somewhat vertical,

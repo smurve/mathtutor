@@ -3,7 +3,7 @@ package org.smurve.mathtutor.demos
 import breeze.linalg.DenseVector
 import org.smurve.charts.{LineChart, PlotterSpec}
 import org.smurve.mnist._
-
+import org.smurve.deeplearning._
 /**
   * Created by wgiersche on 22/03/17.
   */
@@ -13,7 +13,7 @@ object ConvLayerDemo {
 
   def go() : Unit = main(Array(""))
 
-  var convLayer: Layer = _
+  var convLayer: MNISTLayer = _
 
   def main(args: Array[String]): Unit = {
 

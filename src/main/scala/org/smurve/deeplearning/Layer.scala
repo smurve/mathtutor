@@ -1,6 +1,7 @@
-package org.smurve.mnist
+package org.smurve.deeplearning
 
-trait Layer {
+
+abstract class Layer( val inputSize: Int )  {
 
   /**
     * update the weights from the average corrections collected in previous learnings
@@ -23,4 +24,9 @@ trait Layer {
     */
   def feedForwardAndPropBack(x: DV, y: DV): DV
 
-  }
+
+  def º ( next: Layer ): NeuralNetwork
+
+  private[deeplearning] def stack ( next: Layer ): Unit
+
+}

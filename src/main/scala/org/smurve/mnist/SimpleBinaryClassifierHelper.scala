@@ -1,6 +1,7 @@
 package org.smurve.mnist
 
 import breeze.linalg.DenseVector
+import org.smurve.deeplearning._
 
 /**
   * simply classify points as to be above/below a certain function
