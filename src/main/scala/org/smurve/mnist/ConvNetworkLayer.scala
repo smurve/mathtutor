@@ -2,11 +2,12 @@ package org.smurve.mnist
 
 import breeze.linalg.DenseVector
 import org.smurve.deeplearning._
+import org.smurve.deeplearning.layers.LocalReceptiveField
 
 
 /**
   */
-class ConvNetworkLayer(frame: ConvolutionFrame,
+class ConvNetworkLayer(frame: LocalReceptiveField,
                        num_features: Int = 1,
                        next: Option[MNISTLayer] = None,
                        costDerivative: Option[(DV, DV) => DV] = None,
@@ -16,7 +17,7 @@ class ConvNetworkLayer(frame: ConvolutionFrame,
   def featureMaps: List[String] = List("Finished")
 
 
-  private var w = Array.fill(num_features)(DenseVector.rand[Double](frame.size_window))
+  private var w = Array.fill(num_features)(DenseVector.rand[Double](frame.size))
 
 
   private var sum_nabla_w: Array[DV] = zeroes
@@ -37,12 +38,12 @@ class ConvNetworkLayer(frame: ConvolutionFrame,
 
   def setFeatures(weights: Array[DV]): Unit = {
     assert(weights.length == num_features)
-    assert(weights(0).length == frame.size_window)
+    assert(weights(0).length == frame.size)
     w = weights
   }
 
   private def zeroes: Array[DV] =
-    Array.fill(num_features)(DenseVector.zeros[Double](frame.size_window))
+    Array.fill(num_features)(DenseVector.zeros[Double](frame.size))
 
 
   /**
@@ -67,7 +68,7 @@ class ConvNetworkLayer(frame: ConvolutionFrame,
     */
   def convolute(f: Int, input: DV): Array[Double] = {
     (0 until frame.size_featureMap).map(k => {
-      (0 until frame.size_window).map(j => {
+      (0 until frame.size).map(j => {
         w(f)(j) * input(frame.tau(k, j))
       }).sum
     }).toArray
@@ -104,7 +105,7 @@ class ConvNetworkLayer(frame: ConvolutionFrame,
 
     val dC_dw = (0 until num_features).map(
       n => { // for each feature map
-        val delta: Array[Double] = (0 until frame.size_window).map(
+        val delta: Array[Double] = (0 until frame.size).map(
           j => // fix the index of the weight
             (0 until frame.size_featureMap).map(
               k => { // sum up all components of x that contribute to w_j

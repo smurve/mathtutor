@@ -1,6 +1,6 @@
 package org.smurve.deeplearning
 
-import org.smurve.deeplearning.layers.OL
+import org.smurve.deeplearning.layers.{Layer, OutputLayer}
 
 import scala.collection.mutable
 
@@ -12,7 +12,7 @@ class NeuralNetwork(initialLayers: Layer*) extends Layer(initialLayers.head.inpu
 
   initialLayers.foreach(layers += _)
 
-  def º(next: Layer): NeuralNetwork = {
+  override def *(next: Layer): NeuralNetwork = {
     stack(next)
     this
   }
@@ -47,6 +47,6 @@ class NeuralNetwork(initialLayers: Layer*) extends Layer(initialLayers.head.inpu
   override def feedForwardAndPropBack(x: DV, y: DV): DV = layers.head.feedForwardAndPropBack(x, y)
 
   def recentLoss: Double = {
-    layers.last.asInstanceOf[OL].recentLoss
+    layers.last.asInstanceOf[OutputLayer].recentLoss
   }
 }

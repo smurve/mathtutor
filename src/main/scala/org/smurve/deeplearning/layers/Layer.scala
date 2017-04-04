@@ -1,5 +1,6 @@
-package org.smurve.deeplearning
+package org.smurve.deeplearning.layers
 
+import org.smurve.deeplearning.{DV, NeuralNetwork}
 
 abstract class Layer( val inputSize: Int )  {
 
@@ -25,7 +26,9 @@ abstract class Layer( val inputSize: Int )  {
   def feedForwardAndPropBack(x: DV, y: DV): DV
 
 
-  def º ( next: Layer ): NeuralNetwork
+  def º ( next: Layer ): NeuralNetwork = * ( next )
+
+  def * ( next: Layer ): NeuralNetwork
 
   private[deeplearning] def stack ( next: Layer ): Unit
 

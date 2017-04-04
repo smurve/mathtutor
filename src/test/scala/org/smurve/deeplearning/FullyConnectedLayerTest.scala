@@ -2,7 +2,7 @@ package org.smurve.deeplearning
 
 import breeze.linalg.{DenseVector, sum}
 import org.scalatest.{FlatSpec, ShouldMatchers}
-import org.smurve.deeplearning.layers.{FCL, OL}
+import org.smurve.deeplearning.layers.{FullyConnectedLayer, OutputLayer}
 
 /**
   */
@@ -11,10 +11,10 @@ class FullyConnectedLayerTest extends FlatSpec with ShouldMatchers {
 
   "a linear Networks" should "exhibit linear behaviour" in {
 
-    val input = new FCL ( inputSize = 4, initialValue = 1.0 )
-    val hidden1 = new FCL ( inputSize = 3, initialValue = 1.0 )
-    val hidden2 = new FCL ( inputSize = 2, initialValue = 1.0 )
-    val out = new OL( inputSize = 2, activation = IDENTITY, EUCLIDEAN )
+    val input = new FullyConnectedLayer ( inputSize = 4, initialValue = 1.0 )
+    val hidden1 = new FullyConnectedLayer ( inputSize = 3, initialValue = 1.0 )
+    val hidden2 = new FullyConnectedLayer ( inputSize = 2, initialValue = 1.0 )
+    val out = new OutputLayer( inputSize = 2, activation = IDENTITY, EUCLIDEAN )
 
     // stack'em: Only now the weights are initialized
     val nn: NeuralNetwork = input º hidden1 º hidden2 º out
@@ -32,10 +32,10 @@ class FullyConnectedLayerTest extends FlatSpec with ShouldMatchers {
   "A linear network" should "easily learn the simple concept of linear separability" in {
 
     // We're using two hidden layers just to make it a bit more complex. A single layer would do.
-    val input = new FCL ( inputSize = 4, initWith = INIT_WITH_RANDOM, inputActivation=IDENTITY)
-    val hidden1 = new FCL ( inputSize = 3, initWith = INIT_WITH_RANDOM, inputActivation=RELU )
-    val hidden2 = new FCL ( inputSize = 2, initWith = INIT_WITH_RANDOM, inputActivation=RELU )
-    val out = new OL( inputSize = 2, activation = SIGMOID, EUCLIDEAN )
+    val input = new FullyConnectedLayer ( inputSize = 4, initWith = INIT_WITH_RANDOM, inputActivation=IDENTITY)
+    val hidden1 = new FullyConnectedLayer ( inputSize = 3, initWith = INIT_WITH_RANDOM, inputActivation=RELU )
+    val hidden2 = new FullyConnectedLayer ( inputSize = 2, initWith = INIT_WITH_RANDOM, inputActivation=RELU )
+    val out = new OutputLayer( inputSize = 2, activation = SIGMOID, EUCLIDEAN )
 
     // stack'em: Only now the weights are initialized
     val nn: NeuralNetwork = input º hidden1 º hidden2 º out

@@ -6,7 +6,7 @@ import org.smurve.deeplearning._
   * Output Layer
   * responsible for the loss function calculus and stats
   */
-class OL(inputSize: Int, activation: Activation, costFunction: CostFunction) extends Layer(inputSize) {
+class OutputLayer(inputSize: Int, activation: Activation, costFunction: CostFunction) extends Layer(inputSize) {
 
   var recentLoss: Double = _
   private var batchCost = 0.0
@@ -56,7 +56,7 @@ class OL(inputSize: Int, activation: Activation, costFunction: CostFunction) ext
     * @param next unused
     * @return Nothing. Throws an exception
     */
-  override def º(next: Layer): NeuralNetwork = {
+  override def * (next: Layer): NeuralNetwork = {
     throw new NetworkActivityException("You can't connect the output layer to a subsequent layer")
   }
 

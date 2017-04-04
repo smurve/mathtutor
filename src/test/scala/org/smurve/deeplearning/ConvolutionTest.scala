@@ -2,6 +2,7 @@ package org.smurve.deeplearning
 
 import breeze.linalg.{DenseVector, max, min}
 import org.scalatest.{FlatSpec, ShouldMatchers}
+import org.smurve.deeplearning.layers.LocalReceptiveField
 import org.smurve.mnist.{ConvNetworkLayer, MNISTImage}
 
 /**
@@ -10,7 +11,7 @@ import org.smurve.mnist.{ConvNetworkLayer, MNISTImage}
 class ConvolutionTest extends FlatSpec with ShouldMatchers {
 
   "A convolution frame" should "select the right indexes" in {
-    val frame = ConvolutionFrame(input_cols = 28, input_rows = 28, window_cols = 4, window_rows = 3)
+    val frame = LocalReceptiveField(input_cols = 28, input_rows = 28, lrf_cols = 4, lrf_rows = 3)
     frame.size_featureMap should be((28 - 4 + 1) * (28 - 3 + 1))
     frame.tau(27, 0) should be(28 + 2)
     //println(frame.tau(27).toList)
@@ -24,7 +25,7 @@ class ConvolutionTest extends FlatSpec with ShouldMatchers {
       16, 17, 18, 19, 20,
       21, 22, 23, 24, 25)
 
-    val frame = ConvolutionFrame(5, 5, 3, 2)
+    val frame = LocalReceptiveField(5, 5, 3, 2)
 
     val layer = new ConvNetworkLayer(frame = frame, num_features = 1, activation = SIGMOID, costDerivative = None)
 
@@ -47,7 +48,7 @@ class ConvolutionTest extends FlatSpec with ShouldMatchers {
       1.0, 0, 1, 0, 1, 1, 1, 0
     )
 
-    val frame = ConvolutionFrame(8, 8, 3, 3)
+    val frame = LocalReceptiveField(8, 8, 3, 3)
 
     val layer = new ConvNetworkLayer(frame = frame, num_features = 2, activation = SIGMOID, costDerivative = None)
 

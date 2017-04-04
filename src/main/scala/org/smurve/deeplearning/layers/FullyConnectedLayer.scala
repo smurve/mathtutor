@@ -7,10 +7,10 @@ import org.smurve.deeplearning._
   * A fully connected Layer
   * Note that in my model, the activation function is applied to the input vector
   */
-class FCL (inputSize: Int,
-           initWith: InitWith = INIT_WITH_CONST,
-           initialValue: Double = .5,
-           inputActivation: Activation = IDENTITY )
+class FullyConnectedLayer(inputSize: Int,
+                          initWith: InitWith = INIT_WITH_CONST,
+                          initialValue: Double = .5,
+                          inputActivation: Activation = IDENTITY )
 
   extends Layer( inputSize ) {
 
@@ -34,7 +34,7 @@ class FCL (inputSize: Int,
     * @param next the next layer
     * @return the resulting network
     */
-  def º ( next: Layer ): NeuralNetwork = {
+  def * ( next: Layer ): NeuralNetwork = {
     stack( next )
     new NeuralNetwork(this, next)
   }
