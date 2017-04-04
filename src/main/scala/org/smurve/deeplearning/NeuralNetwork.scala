@@ -1,5 +1,7 @@
 package org.smurve.deeplearning
 
+import org.smurve.deeplearning.layers.OL
+
 import scala.collection.mutable
 
 /**

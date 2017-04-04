@@ -2,6 +2,7 @@ package org.smurve.deeplearning
 
 import breeze.linalg.{DenseVector, sum}
 import org.scalatest.{FlatSpec, ShouldMatchers}
+import org.smurve.deeplearning.layers.{FCL, OL}
 
 /**
   */

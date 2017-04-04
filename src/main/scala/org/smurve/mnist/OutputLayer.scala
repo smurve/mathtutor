@@ -1,7 +1,8 @@
 package org.smurve.mnist
 
-import org.smurve.deeplearning
-import org.smurve.deeplearning.{Layer, _}
+import org.smurve.deeplearning.{CostFunction, DV}
+import org.smurve.deeplearning.EUCLIDEAN
+
 
 /**
   * A final layer doesn't actually learn. It provides the cost function and its derivative to the previous layers

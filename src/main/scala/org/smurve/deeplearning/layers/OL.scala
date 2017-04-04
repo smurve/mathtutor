@@ -1,4 +1,6 @@
-package org.smurve.deeplearning
+package org.smurve.deeplearning.layers
+
+import org.smurve.deeplearning._
 
 /**
   * Output Layer

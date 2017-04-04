@@ -1,17 +1,15 @@
-package org.smurve.mnist
+package org.smurve.deeplearning
 
 import breeze.linalg.{DenseVector, max, min}
 import org.scalatest.{FlatSpec, ShouldMatchers}
-import org.smurve.deeplearning.{DV, SIGMOID}
+import org.smurve.mnist.{ConvNetworkLayer, MNISTImage}
 
 /**
   * Created by wgiersche on 19/03/17.
   */
 class ConvolutionTest extends FlatSpec with ShouldMatchers {
 
-
   "A convolution frame" should "select the right indexes" in {
-
     val frame = ConvolutionFrame(input_cols = 28, input_rows = 28, window_cols = 4, window_rows = 3)
     frame.size_featureMap should be((28 - 4 + 1) * (28 - 3 + 1))
     frame.tau(27, 0) should be(28 + 2)
@@ -35,7 +33,6 @@ class ConvolutionTest extends FlatSpec with ShouldMatchers {
     val features = layer.convolute(0, input)
 
     features should be(Array(27.0, 33, 39, 57, 63, 69, 87, 93, 99, 117, 123, 129))
-
   }
 
   "A convolutional network" should "localize certain features" in {

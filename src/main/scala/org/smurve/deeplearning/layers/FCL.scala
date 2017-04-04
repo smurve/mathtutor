@@ -1,6 +1,7 @@
-package org.smurve.deeplearning
+package org.smurve.deeplearning.layers
 
 import breeze.linalg.{DenseMatrix, DenseVector}
+import org.smurve.deeplearning._
 
 /**
   * A fully connected Layer
