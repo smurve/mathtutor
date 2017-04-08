@@ -4,19 +4,17 @@ import breeze.linalg.{DenseMatrix, DenseVector}
 import org.smurve.deeplearning._
 
 /**
-  * A fully connected Layer
-  * Note that in my model, the activation function is applied to the input vector
+  * A layer that defines an affine transformation
   */
-class FullyConnectedLayer(_inputSize: Int,
-                          initWith: InitWith = INIT_WITH_CONST,
-                          initialValue: Double = .5,
-                          inputActivation: Activation = IDENTITY )
-  extends Layer {
+class AffineLayer(name: String = "Some Affine Layer",
+                  _inputSize: Int,
+                  initWith: InitWith = INIT_WITH_CONST,
+                  initialValue: Double = .5)  extends Layer {
 
   // the weights
   private var w: DM = _
 
-  // the bias
+  // the bias (Caro told me, everyone has a bias of some sort...;-)
   private var b: DV = _
 
   private var avg_nabla_b: DV = _ // DenseVector.zeros(outputSize)
@@ -24,7 +22,6 @@ class FullyConnectedLayer(_inputSize: Int,
 
   private var sum_cost: Double = 0.0
   private var batchCounter = 0
-
 
   override def initialize(): Unit = {
 
@@ -61,19 +58,18 @@ class FullyConnectedLayer(_inputSize: Int,
     */
   override def feedForward(z_in: DV): DV = {
     assertReady()
-    nextLayer.get.feedForward(w * inputActivation.fn(z_in) + b)
+    nextLayer.get.feedForward(w * z_in + b)
   }
 
 
   /**
-    * @param z_in the input vector to learn from
+    * @param a_in the input vector, possibly from the previous layer
     * @param y the desired classification for the given input
     * @return the back-propagated deltas
     */
-  override def feedForwardAndPropBack(z_in: DV, y: DV): DV = {
+  override def feedForwardAndPropBack(a_in: DV, y: DV): DV = {
     assertReady()
     batchCounter += 1
-    val a_in = inputActivation.fn(z_in)
     val z_out = w * a_in + b
     val delta = nextLayer.get.feedForwardAndPropBack(z_out, y)
 
@@ -81,7 +77,7 @@ class FullyConnectedLayer(_inputSize: Int,
     avg_nabla_b += delta
     avg_nabla_w += delta * a_in.t
 
-    (w.t * delta) :* inputActivation.deriv(z_in)
+    w.t * delta
   }
 
   /**
@@ -110,4 +106,8 @@ class FullyConnectedLayer(_inputSize: Int,
     */
   override def inputSize: Int = _inputSize
 
+  override def toString: String = {
+    name + ": " + inputSize + "x" + "?"
+  }
 }
+

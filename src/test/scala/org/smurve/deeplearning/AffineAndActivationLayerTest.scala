@@ -6,14 +6,14 @@ import org.smurve.deeplearning.layers._
 
 /**
   */
-class FullyConnectedLayerTest extends FlatSpec with ShouldMatchers {
+class AffineAndActivationLayerTest extends FlatSpec with ShouldMatchers {
 
 
   "a linear Networks" should "exhibit linear behaviour" in {
 
-    val input = new FullyConnectedLayer ( _inputSize = 4, initialValue = 1.0 )
-    val hidden1 = new FullyConnectedLayer ( _inputSize = 3, initialValue = 1.0 )
-    val hidden2 = new FullyConnectedLayer ( _inputSize = 2, initialValue = 1.0 )
+    val input = new AffineLayer ( "INPUT", _inputSize = 4, initialValue = 1.0 )
+    val hidden1 = new AffineLayer ( "HIDDEN 1", _inputSize = 3, initialValue = 1.0 )
+    val hidden2 = new AffineLayer ( "HIDDEN 2", _inputSize = 2, initialValue = 1.0 )
     val out = new OutputLayer( _inputSize = 2, EUCLIDEAN )
 
     // stack'em: Only now the weights are initialized
@@ -32,13 +32,14 @@ class FullyConnectedLayerTest extends FlatSpec with ShouldMatchers {
   "A linear network" should "easily learn the simple concept of linear separability" in {
 
     // We're using two hidden layers just to make it a bit more complex. A single layer would do.
-    val input = new FullyConnectedLayer ( _inputSize = 4, initWith = INIT_WITH_RANDOM, inputActivation=IDENTITY)
-    val hidden1 = new FullyConnectedLayer ( _inputSize = 3, initWith = INIT_WITH_RANDOM, inputActivation=RELU )
-    val hidden2 = new FullyConnectedLayer ( _inputSize = 2, initWith = INIT_WITH_RANDOM, inputActivation=RELU )
+    val input = new AffineLayer ( _inputSize = 4, initWith = INIT_WITH_RANDOM)
+    val hidden1 = new AffineLayer ( _inputSize = 3, initWith = INIT_WITH_RANDOM)
+    val hidden2 = new AffineLayer ( _inputSize = 2, initWith = INIT_WITH_RANDOM)
     val out = new OutputLayer( _inputSize = 2, EUCLIDEAN )
 
     // stack'em: Only now the weights are initialized
-    val nn = input º hidden1 º hidden2 º SIGMOID_LAYER º out
+    val nn = input º RELU_LAYER º hidden1 º RELU_LAYER º hidden2 º SIGMOID_LAYER º out
+
 
     // train with 1000 randomly created samples
     for ( _ <- 0 to 1000 ) {

@@ -1,14 +1,14 @@
 package org.smurve.deeplearning.layers
 
 /**
-  * A model for the local receptive field for convolutional layers
+  * A model for the local receptive field for convolutional layers given a certain input matrix
   *
   * @param input_cols number of columns of the input matrix
   * @param input_rows number of rows of the input matrix
   * @param lrf_cols   number of columns of the local receptive field
   * @param lrf_rows   number of rows of the local receptive field
   */
-case class LocalReceptiveField(input_cols: Int, input_rows: Int, lrf_cols: Int, lrf_rows: Int) {
+case class LocalReceptiveFieldSpec(input_cols: Int, input_rows: Int, lrf_cols: Int, lrf_rows: Int) {
 
   val input_size: Int = input_rows * input_cols
   val feature_cols: Int = input_cols - lrf_cols + 1

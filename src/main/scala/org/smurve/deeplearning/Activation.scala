@@ -9,6 +9,7 @@ import breeze.linalg.DenseVector
   */
 case class Activation
 (
+  name: String,
   fn: DenseVector[Double] => DenseVector[Double],
   deriv: DenseVector[Double] => DenseVector[Double]) {
 }

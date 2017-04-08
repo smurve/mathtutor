@@ -7,21 +7,18 @@ import org.smurve.deeplearning._
   * A convolutional layer
   */
 class ConvolutionalLayer(n_features: Int,
-                         lrf: LocalReceptiveField, // the model of the local receptive field
+                         lrf: LocalReceptiveFieldSpec, // the model of the local receptive field
                          initWith: InitWith = INIT_WITH_CONST,
                          initialValue: Option[Array[DV]] = None,
                          inputActivation: Activation = IDENTITY)
 
-  extends Layer(lrf.input_size) {
+  extends Layer {
 
   var w: Array[DV] = _
 
   assert ( initialValue.isDefined || initWith == INIT_WITH_RANDOM )
 
   w = initialValue.getOrElse(Array.tabulate(n_features)(_=>DenseVector.rand[Double](lrf.size)))
-
-  // the next layer - there must be one before we can start.
-  private var nextLayer: Layer = _
 
   /**
     * update the weights from the average corrections collected in previous learnings
@@ -39,7 +36,7 @@ class ConvolutionalLayer(n_features: Int,
   override def feedForward(x: DV): DV = {
     val a = inputActivation.fn(x)
     val z = DenseVector((0 until n_features).flatMap(convolute(_,a)).toArray)
-    nextLayer.feedForward(z)
+    nextLayer.get.feedForward(z)
   }
 
 
@@ -68,14 +65,23 @@ class ConvolutionalLayer(n_features: Int,
   override def feedForwardAndPropBack(x: DV, y: DV): DV = ???
 
 
-  override def *(next: Layer): NeuralNetwork = {
-    val requiredOutputSize = n_features * lrf.size_featureMap
-
-    assert(requiredOutputSize == next.inputSize, "Can't connect layers. Sizes don't match")
-
-    nextLayer = next
-    new NeuralNetwork(this, next)
+  override def *(next: Layer): Layer = {
+    super.*(next)
   }
 
-  override private[deeplearning] def stack(next: Layer) = ???
+  /**
+    * Every Layer has a well defined input size that may, however, only be determined once the previous layer is known
+    *
+    * @return the size of the expected input vector
+    */
+  override def inputSize: Int = lrf.input_size
+
+  /**
+    * initialize weights, to be called by the next layer, should continue until the input layer
+    */
+  override def initialize(): Unit = {
+    val requiredOutputSize = n_features * lrf.size_featureMap
+    assert(requiredOutputSize == nextLayer.get.inputSize, "Can't connect layers. Sizes don't match")
+    previousLayer.foreach(_.initialize())
+  }
 }

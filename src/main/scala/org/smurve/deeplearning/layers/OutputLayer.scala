@@ -6,7 +6,7 @@ import org.smurve.deeplearning._
   * Output Layer
   * responsible for the loss function calculus and stats
   */
-class OutputLayer(inputSize: Int, activation: Activation, costFunction: CostFunction) extends Layer(inputSize) {
+class OutputLayer(_inputSize: Int, costFunction: CostFunction) extends Layer {
 
   var recentLoss: Double = _
   private var batchCost = 0.0
@@ -14,7 +14,7 @@ class OutputLayer(inputSize: Int, activation: Activation, costFunction: CostFunc
   private var batchCounter = 0
 
   /**
-    * just to fulfill the interface. Do nothing.
+    * update the statistics per batch
     *
     * @param eta : the learning factor
     */
@@ -30,24 +30,21 @@ class OutputLayer(inputSize: Int, activation: Activation, costFunction: CostFunc
     * @param x the vector to classify
     * @return the classification for the given vector according to the recent model
     */
-  override def feedForward(x: DV): DV = {
-    activation.fn(x)
-  }
+  override def feedForward(x: DV): DV = x
 
   /**
     *
-    * @param z the input vector to learn from
+    * @param a_in the input vector to learn from
     * @param y the desired classification for the given input
     * @return the back-propagated deltas
     */
-  override def feedForwardAndPropBack(z: DV, y: DV): DV = {
+  override def feedForwardAndPropBack(a_in: DV, y: DV): DV = {
 
-    val a = activation.fn(z)
-    recentLoss = costFunction.fn(a, y)
+    recentLoss = costFunction.fn(a_in, y)
     batchCost += recentLoss
 
     // back propagation
-    costFunction.deriv(a, y) :* activation.deriv(z)
+    costFunction.deriv(a_in, y)
   }
 
 
@@ -56,11 +53,19 @@ class OutputLayer(inputSize: Int, activation: Activation, costFunction: CostFunc
     * @param next unused
     * @return Nothing. Throws an exception
     */
-  override def * (next: Layer): NeuralNetwork = {
+  override def * (next: Layer): Layer = {
     throw new NetworkActivityException("You can't connect the output layer to a subsequent layer")
   }
 
-  override private[deeplearning] def stack(next: Layer) =
-    throw new NetworkActivityException("You can't connect the output layer to a subsequent layer")
+  /**
+    * Every Layer has a well defined input size that may, however, only be determined once the previous layer is known
+    *
+    * @return the size of the expected input vector
+    */
+  override def inputSize: Int = _inputSize
 
+  /**
+    * initialize weights, to be called by the next layer, should continue until the input layer
+    */
+  override def initialize(): Unit = previousLayer.get.initialize()
 }

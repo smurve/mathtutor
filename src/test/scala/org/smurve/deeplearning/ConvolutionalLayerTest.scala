@@ -2,7 +2,7 @@ package org.smurve.deeplearning
 
 import breeze.linalg.DenseVector
 import org.scalatest.{FlatSpec, ShouldMatchers}
-import org.smurve.deeplearning.layers.{FullyConnectedLayer, ConvolutionalLayer, LocalReceptiveField, OutputLayer}
+import org.smurve.deeplearning.layers._
 
 class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
 
@@ -21,22 +21,21 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
   private val cl = new ConvolutionalLayer(
     initWith = INIT_WITH_CONST, initialValue = Some(constantLRF),
     inputActivation = IDENTITY,
-    lrf = LocalReceptiveField(5, 5, 3, 2), n_features = 2)
+    lrf = LocalReceptiveFieldSpec(5, 5, 3, 2), n_features = 2)
 
   private val hidden1 = new FullyConnectedLayer(
-    inputSize = 24,
+    _inputSize = 24,
     initWith = INIT_WITH_CONST, initialValue = .5,
     inputActivation = SIGMOID)
 
   private val ol_1 = new OutputLayer(
-    inputSize = 24,
-    activation = RELU,
+    _inputSize = 24,
     costFunction = EUCLIDEAN)
 
 
   "the down arrow " should "be identified at pos 4 on the first featuremap" in {
 
-    val nn = cl º ol_1
+    val nn = cl º RELU_LAYER º ol_1
     cl.w.foreach(println)
     val res = nn.feedForward( image(1,1,DOWN))
     println(res)

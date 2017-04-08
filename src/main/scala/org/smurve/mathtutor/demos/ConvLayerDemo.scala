@@ -4,7 +4,7 @@ import breeze.linalg.DenseVector
 import org.smurve.charts.{LineChart, PlotterSpec}
 import org.smurve.mnist._
 import org.smurve.deeplearning._
-import org.smurve.deeplearning.layers.LocalReceptiveField
+import org.smurve.deeplearning.layers.LocalReceptiveFieldSpec
 /**
   * Created by wgiersche on 22/03/17.
   */
@@ -18,7 +18,7 @@ object ConvLayerDemo {
 
   def main(args: Array[String]): Unit = {
 
-    val frame = LocalReceptiveField (16, 16, 5, 5)
+    val frame = LocalReceptiveFieldSpec (16, 16, 5, 5)
 
     val num_features = 2
 
