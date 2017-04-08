@@ -10,7 +10,7 @@ import org.smurve.deeplearning._
 class FullyConnectedLayer(_inputSize: Int,
                           initWith: InitWith = INIT_WITH_CONST,
                           initialValue: Double = .5,
-                          inputActivation: Activation = IDENTITY )
+                          inputActivation: Activation = a_identity )
   extends Layer {
 
   // the weights

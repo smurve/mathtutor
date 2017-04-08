@@ -25,18 +25,13 @@ class AffineLayer(name: String = "Some Affine Layer",
 
   override def initialize(): Unit = {
 
+    val outputSize: Int = nextLayer.get.inputSize
     if (initWith == INIT_WITH_CONST) {
-      w = DenseMatrix.fill(nextLayer.get.inputSize, _inputSize) {
-        initialValue
-      }
-      b = DenseVector.fill(nextLayer.get.inputSize) {
-        initialValue
-      }
+      w = DenseMatrix.fill(outputSize, _inputSize) { initialValue }
+      b = DenseVector.fill(outputSize) { initialValue }
     } else if ( initWith == INIT_WITH_RANDOM) {
-      w = DenseMatrix.rand[Double](nextLayer.get.inputSize, _inputSize) -
-        DenseMatrix.fill(nextLayer.get.inputSize, _inputSize){0.5}
-      b = DenseVector.rand[Double](nextLayer.get.inputSize) -
-        DenseVector.fill(nextLayer.get.inputSize) {0.5}
+      w = DenseMatrix.rand(outputSize, _inputSize) - DenseMatrix.fill(outputSize, _inputSize){0.5}
+      b = DenseVector.rand(outputSize) - DenseVector.fill(outputSize) {0.5}
     }
     resetBatch()
     previousLayer.foreach(_.initialize())

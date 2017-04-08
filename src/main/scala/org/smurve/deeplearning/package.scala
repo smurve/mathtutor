@@ -15,9 +15,9 @@ package object deeplearning {
   val EUCLIDEAN = CostFunction ( euclideanCost, euclideanCostDerivative)
 
   // Activation functions and their derivatives
-  val SIGMOID: Activation = Activation("sigmoid", sigmoid, sigmoid_prime)
-  val IDENTITY: Activation = Activation("identity", x => x, x => DenseVector.ones(x.length))
-  val RELU: Activation = Activation( "ReLU", relu, relu_prime )
+  val a_sigmoid: Activation = Activation("sigmoid", sigmoid, sigmoid_prime)
+  val a_identity: Activation = Activation("identity", x => x, x => DenseVector.ones(x.length))
+  val a_relu: Activation = Activation( "ReLU", relu, relu_prime )
 
   def sigmoid(v: DenseVector[Double]): DenseVector[Double] = {
     DenseVector(v.map(xi => 1 / (1 + math.exp(-xi))).toArray)

@@ -20,13 +20,13 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
 
   private val cl = new ConvolutionalLayer(
     initWith = INIT_WITH_CONST, initialValue = Some(constantLRF),
-    inputActivation = IDENTITY,
+    inputActivation = a_identity,
     lrf = LocalReceptiveFieldSpec(5, 5, 3, 2), n_features = 2)
 
   private val hidden1 = new FullyConnectedLayer(
     _inputSize = 24,
     initWith = INIT_WITH_CONST, initialValue = .5,
-    inputActivation = SIGMOID)
+    inputActivation = a_sigmoid)
 
   private val ol_1 = new OutputLayer(
     _inputSize = 24,
@@ -35,7 +35,7 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
 
   "the down arrow " should "be identified at pos 4 on the first featuremap" in {
 
-    val nn = cl º RELU_LAYER º ol_1
+    val nn = cl º RELU º ol_1
     cl.w.foreach(println)
     val res = nn.feedForward( image(1,1,DOWN))
     println(res)

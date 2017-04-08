@@ -27,7 +27,7 @@ object ConvLayerDemo {
     val hidden = new FullyConnectedLayer(
       inputSize = size_all_feature_maps * frame.size_featureMap,
       outputSize = size_output,
-      activation = SIGMOID
+      activation = a_sigmoid
     )
 
     convLayer = new ConvNetworkLayer(

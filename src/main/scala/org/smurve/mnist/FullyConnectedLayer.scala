@@ -1,7 +1,6 @@
 package org.smurve.mnist
 
 import breeze.linalg.{DenseMatrix, DenseVector}
-import org.smurve.deeplearning
 import org.smurve.deeplearning._
 
 /**
@@ -16,7 +15,7 @@ class FullyConnectedLayer(inputSize: Int, val outputSize: Int,
                           val next: Option[MNISTLayer] = None,
                           initWith: InitWith = INIT_WITH_RANDOM,
                           costFunction: CostFunction = EUCLIDEAN,
-                          activation: Activation = SIGMOID
+                          activation: Activation = a_sigmoid
              ) extends MNISTLayer(inputSize) {
 
   private var b: DV = newBias(outputSize, initWith)
@@ -56,13 +55,13 @@ class FullyConnectedLayer(inputSize: Int, val outputSize: Int,
     if ( initWith == INIT_WITH_RANDOM )
       DenseVector.rand(size)-DenseVector.fill(size){0.5}
     else
-      DenseVector.fill(size){0.5}
+      DenseVector.fill(size){0.001}
 
   private def newWeight ( outputSize: Int, inputSize: Int, initWith: InitWith): DM =
     if ( initWith == INIT_WITH_RANDOM )
       DenseMatrix.rand(outputSize, inputSize)-DenseMatrix.fill(outputSize, inputSize){0.5}
     else
-      DenseMatrix.fill(outputSize, inputSize){0.5}
+      DenseMatrix.fill(outputSize, inputSize){0.001}
 
   /**
     * calculate the output, and feed it into the next layer, if there is one.
@@ -95,7 +94,7 @@ class FullyConnectedLayer(inputSize: Int, val outputSize: Int,
 
     val d = if (next.isEmpty) {
       sum_cost += costFunction.fn(a, y)
-      costFunction.deriv(a, y)
+      costFunction.deriv(a, y) :* activation.deriv(z)
     } else {
       val wd = next.get.feedForwardAndPropBack( a, y)
       wd :* activation.deriv(z)

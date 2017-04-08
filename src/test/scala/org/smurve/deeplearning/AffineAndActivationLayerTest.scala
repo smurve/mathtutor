@@ -38,7 +38,7 @@ class AffineAndActivationLayerTest extends FlatSpec with ShouldMatchers {
     val out = new OutputLayer( _inputSize = 2, EUCLIDEAN )
 
     // stack'em: Only now the weights are initialized
-    val nn = input º RELU_LAYER º hidden1 º RELU_LAYER º hidden2 º SIGMOID_LAYER º out
+    val nn = input º RELU º hidden1 º RELU º hidden2 º SIGMOID º out
 
 
     // train with 1000 randomly created samples

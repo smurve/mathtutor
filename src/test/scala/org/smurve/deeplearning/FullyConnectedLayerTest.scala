@@ -32,13 +32,13 @@ class FullyConnectedLayerTest extends FlatSpec with ShouldMatchers {
   "A linear network" should "easily learn the simple concept of linear separability" in {
 
     // We're using two hidden layers just to make it a bit more complex. A single layer would do.
-    val input = new FullyConnectedLayer ( _inputSize = 4, initWith = INIT_WITH_RANDOM, inputActivation=IDENTITY)
-    val hidden1 = new FullyConnectedLayer ( _inputSize = 3, initWith = INIT_WITH_RANDOM, inputActivation=RELU )
-    val hidden2 = new FullyConnectedLayer ( _inputSize = 2, initWith = INIT_WITH_RANDOM, inputActivation=RELU )
+    val input = new FullyConnectedLayer ( _inputSize = 4, initWith = INIT_WITH_RANDOM, inputActivation=a_identity)
+    val hidden1 = new FullyConnectedLayer ( _inputSize = 3, initWith = INIT_WITH_RANDOM, inputActivation=a_relu )
+    val hidden2 = new FullyConnectedLayer ( _inputSize = 2, initWith = INIT_WITH_RANDOM, inputActivation=a_relu )
     val out = new OutputLayer( _inputSize = 2, EUCLIDEAN )
 
     // stack'em: Only now the weights are initialized
-    val nn = input º hidden1 º hidden2 º SIGMOID_LAYER º out
+    val nn = input º hidden1 º hidden2 º SIGMOID º out
 
     // train with 1000 randomly created samples
     for ( _ <- 0 to 1000 ) {

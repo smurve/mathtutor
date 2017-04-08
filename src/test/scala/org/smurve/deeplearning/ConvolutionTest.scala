@@ -27,7 +27,7 @@ class ConvolutionTest extends FlatSpec with ShouldMatchers {
 
     val frame = LocalReceptiveFieldSpec(5, 5, 3, 2)
 
-    val layer = new ConvNetworkLayer(frame = frame, num_features = 1, activation = SIGMOID, costDerivative = None)
+    val layer = new ConvNetworkLayer(frame = frame, num_features = 1, activation = a_sigmoid, costDerivative = None)
 
     layer.setFeatures(Array(DenseVector(1, 1, 1, 1, 1, 1)))
 
@@ -50,7 +50,7 @@ class ConvolutionTest extends FlatSpec with ShouldMatchers {
 
     val frame = LocalReceptiveFieldSpec(8, 8, 3, 3)
 
-    val layer = new ConvNetworkLayer(frame = frame, num_features = 2, activation = SIGMOID, costDerivative = None)
+    val layer = new ConvNetworkLayer(frame = frame, num_features = 2, activation = a_sigmoid, costDerivative = None)
 
     layer.setFeatures(Array(
       DenseVector(

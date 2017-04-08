@@ -3,13 +3,13 @@ package org.smurve.mnist
 import breeze.linalg.DenseVector
 import org.scalatest.{FlatSpec, ShouldMatchers}
 import org.smurve.deeplearning.INIT_WITH_RANDOM
-import org.smurve.deeplearning.SIGMOID
+import org.smurve.deeplearning.a_sigmoid
 
 class SimpleBinaryClassifierTest extends FlatSpec with ShouldMatchers {
 
   //val nn = new NeuralNetwork(Array(2, 2), Array(SIGMOID), INIT_WITH_RANDOM)
   //val nn = new NeuralNetwork(Array(2, 5, 2), Array(SIGMOID, SIGMOID), INIT_WITH_RANDOM)
-  val nn = new NeuralNetwork(Array(2, 5, 5, 2), Array(SIGMOID,SIGMOID,SIGMOID), INIT_WITH_RANDOM)
+  val nn = new NeuralNetwork(Array(2, 5, 5, 2), Array(a_sigmoid,a_sigmoid,a_sigmoid), INIT_WITH_RANDOM)
 
   //val nn = new NeuralNetwork(Array(2, 5, 5, 5, 2), Array(SIGMOID, SIGMOID, SIGMOID, SIGMOID), INIT_WITH_RANDOM)
 

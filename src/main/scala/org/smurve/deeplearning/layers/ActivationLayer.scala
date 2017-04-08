@@ -5,7 +5,7 @@ import org.smurve.deeplearning._
 /**
   * A mere activation layer. Applies the activation function to the each component of the input vector
   */
-class ActivationLayer(activation: Activation = IDENTITY) extends Layer {
+class ActivationLayer(activation: Activation = a_identity) extends Layer {
 
   override def inputSize: Int = nextLayer.map(_.inputSize)
     .getOrElse(throw new IllegalStateException("not initialized yet."))
@@ -26,7 +26,8 @@ class ActivationLayer(activation: Activation = IDENTITY) extends Layer {
     * @return the back-propagated deltas
     */
   override def feedForwardAndPropBack(z_in: DV, y: DV): DV = {
-    val delta = nextLayer.get.feedForwardAndPropBack(activation.fn(z_in), y)
+    val a = activation.fn(z_in)
+    val delta = nextLayer.get.feedForwardAndPropBack(a, y)
     delta :* activation.deriv(z_in)
   }
 

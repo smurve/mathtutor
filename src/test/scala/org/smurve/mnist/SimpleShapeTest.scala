@@ -2,12 +2,12 @@ package org.smurve.mnist
 
 import org.scalatest.{FlatSpec, ShouldMatchers}
 import org.smurve.deeplearning.INIT_WITH_RANDOM
-import org.smurve.deeplearning.SIGMOID
+import org.smurve.deeplearning.a_sigmoid
 
 class SimpleShapeTest extends FlatSpec with ShouldMatchers {
 
   "A simple network" should "learn to tell horizontal from diag from vertical structures" in {
-    val nn = new NeuralNetwork(Array(4,7, 3), Array(SIGMOID, SIGMOID), INIT_WITH_RANDOM)
+    val nn = new NeuralNetwork(Array(4,7, 3), Array(a_sigmoid, a_sigmoid), INIT_WITH_RANDOM)
 
     for ( n <- 0 to 500 ) {
       val sample = SimpleShapeHelper.nextSample

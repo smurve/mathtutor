@@ -10,7 +10,7 @@ class ConvolutionalLayer(n_features: Int,
                          lrf: LocalReceptiveFieldSpec, // the model of the local receptive field
                          initWith: InitWith = INIT_WITH_CONST,
                          initialValue: Option[Array[DV]] = None,
-                         inputActivation: Activation = IDENTITY)
+                         inputActivation: Activation = a_identity)
 
   extends Layer {
 
