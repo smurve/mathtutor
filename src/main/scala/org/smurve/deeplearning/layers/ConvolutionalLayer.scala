@@ -1,6 +1,6 @@
 package org.smurve.deeplearning.layers
 
-import breeze.linalg.DenseVector
+import breeze.linalg.{DenseVector, sum}
 import org.smurve.deeplearning._
 
 /**
@@ -18,12 +18,40 @@ class ConvolutionalLayer(val lrfSpecs: Array[LocalReceptiveFieldSpec])
   val fmapSizes: Array[Int] = lrfSpecs.map(_.fmap_size)
   val fmapOffsets: Array[Int] = fmapSizes.zipWithIndex.map(x=>fmapSizes.slice(0,x._2).sum)
 
+  private var avg_nabla_b: Array[Double] = _ // DenseVector.zeros(outputSize)
+  private var avg_nabla_w: Array[DV] = _ // DenseMatrix.zeros(outputSize, inputSize)
+
+  private var batchCounter = 0
+
+  private def resetBatch() : Unit = {
+    avg_nabla_b = Array.fill(lrfSpecs.length){0.0}
+
+    avg_nabla_w = Array.tabulate(lrfSpecs.length)(m=>{
+      DenseVector.zeros[Double](lrfSpecs(m).lrf_size)
+    })
+
+    batchCounter = 0
+  }
+
   /**
     * update the weights from the average corrections collected in previous learnings
     *
     * @param eta : the learning factor
     */
-  override def update(eta: Double): Double = ???
+  override def update(eta: Double): Double = {
+
+    lrfSpecs.zipWithIndex.foreach(spec_and_index => {
+      val spec = spec_and_index._1
+      val m = spec_and_index._2
+
+      spec.w :-= avg_nabla_w(m) * (eta / batchCounter)
+      spec.b -= avg_nabla_b(m) * (eta / batchCounter)
+    })
+
+    resetBatch()
+    nextLayer.get.update(eta)
+  }
+
 
   /**
     * calculate all feature maps and combine them to a single output vector
@@ -49,7 +77,7 @@ class ConvolutionalLayer(val lrfSpecs: Array[LocalReceptiveFieldSpec])
     (0 until lrfSpecs(m).fmap_size).map(k => {
       (0 until lrfSpecs(m).lrf_size).map(j => {
         lrfSpecs(m).w(j) * input(lrfSpecs(m).dTF(k, j))
-      }).sum + lrfSpecs(m).b(k)
+      }).sum + lrfSpecs(m).b
     }).toArray
   }
 
@@ -71,7 +99,25 @@ class ConvolutionalLayer(val lrfSpecs: Array[LocalReceptiveFieldSpec])
   override def feedForwardAndPropBack(x: DV, y: DV): DV = {
     val delta = nextLayer.get.feedForwardAndPropBack( z(x), y)
 
+    // update weights and biases
+    batchCounter += 1
+    lrfSpecs.zipWithIndex.foreach(spec_and_index => {
+      val size = spec_and_index._1.lrf_size
+      val m = spec_and_index._2
+      val nabla_wm = DenseVector.tabulate(size)(f=>dC_dwmf(x, delta, f, m))
+
+      val nabla_bm = sum(delta.slice(fmapOffsets(m), fmapOffsets(m) + size))
+
+      avg_nabla_w(m) :+= nabla_wm
+      avg_nabla_b(m) += nabla_bm
+    })
+
     DenseVector.tabulate(inputSize)(d => dC_dx_d ( delta, d))
+  }
+
+  def dC_dwmf( x: DV, delta: DV, f: Int, m: Int ): Double = {
+    (0 until lrfSpecs(m).fmap_size).map(t=>
+      delta(t) * x(lrfSpecs(m).dTF(t,f))).sum
   }
 
   /**
@@ -88,7 +134,7 @@ class ConvolutionalLayer(val lrfSpecs: Array[LocalReceptiveFieldSpec])
       val targetIndices = lrfSpecs(m).lrfTargets(d)
       val lowerRight = targetIndices.last
 
-      // sum over all contributing deltas - not all
+      // sum over only the contributing deltas - not all
       targetIndices.map(t=>{
         val x = (lowerRight - t) % lrfCols
         val y = (lowerRight - t) / lrfCols
@@ -146,5 +192,6 @@ class ConvolutionalLayer(val lrfSpecs: Array[LocalReceptiveFieldSpec])
     val requiredOutputSize = n_features * lrfSpecs(0).fmap_size
     assert(requiredOutputSize == nextLayer.get.inputSize, "Can't connect layers. Sizes don't match")
     previousLayer.foreach(_.initialize())
+    resetBatch()
   }
 }

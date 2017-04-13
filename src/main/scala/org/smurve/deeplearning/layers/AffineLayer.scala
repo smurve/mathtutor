@@ -14,13 +14,12 @@ class AffineLayer(name: String = "Some Affine Layer",
   // the weights
   private var w: DM = _
 
-  // the bias (Caro told me, everyone has a bias of some sort...;-)
+  // the bias
   private var b: DV = _
 
   private var avg_nabla_b: DV = _ // DenseVector.zeros(outputSize)
   private var avg_nabla_w: DM = _ // DenseMatrix.zeros(outputSize, inputSize)
 
-  private var sum_cost: Double = 0.0
   private var batchCounter = 0
 
 
@@ -42,7 +41,6 @@ class AffineLayer(name: String = "Some Affine Layer",
   private def resetBatch() : Unit = {
     avg_nabla_b = DenseVector.zeros[Double](nextLayer.get.inputSize)
     avg_nabla_w = DenseMatrix.zeros[Double](nextLayer.get.inputSize, _inputSize)
-    sum_cost = 0
     batchCounter = 0
   }
 

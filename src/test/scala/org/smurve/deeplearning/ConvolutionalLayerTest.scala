@@ -19,10 +19,9 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
   private val weights_down = DenseVector(1.0, -1, 1, -1, 1, -1)
   private val weights_up = DenseVector(-1.0, 1, -1, 1, -1, 1)
   private val symbols = Array(Array(0, 2, 6), Array(1, 5, 7))
-  private val zeroBias = DenseVector.fill(16, 0.0)
 
   private val lrfSpecs = Array(weights_down, weights_up).map(weights =>
-    LocalReceptiveFieldSpec(5, 5, 3, 2, weights = Some(weights), bias = Some(zeroBias)))
+    LocalReceptiveFieldSpec(5, 5, 3, 2, weights = Some(weights), bias = Some(0.0)))
 
   private val cl = new ConvolutionalLayer(lrfSpecs = lrfSpecs)
 
@@ -72,6 +71,13 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
     lrfSpecs(0).lrfTargets(0) should be(Array(0))
     lrfSpecs(0).lrfTargets(6) should be(Array(0,1,3,4))
     lrfSpecs(0).lrfTargets(12) should be(Array(3,4,5,6,7,8))
+    lrfSpecs(0).lrfTargets(13) should be(Array(4,5,7,8))
+    lrfSpecs(0).lrfTargets(14) should be(Array(5,8))
+    lrfSpecs(0).lrfTargets(20) should be(Array(9))
+    lrfSpecs(0).lrfTargets(21) should be(Array(9,10))
+    lrfSpecs(0).lrfTargets(22) should be(Array(9,10,11))
+    lrfSpecs(0).lrfTargets(23) should be(Array(10,11))
+    lrfSpecs(0).lrfTargets(24) should be(Array(11))
   }
 
   "the upper-left input" should "have a well-defined contribution to the loss function" in {
@@ -85,6 +91,26 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
     wd should be (-12)
   }
 
+
+  "A network with convolutional layer" should "be able to identify patterns anywhere on the image" in {
+
+    val hidden = new AffineLayer(_inputSize = 24, initWith = INIT_WITH_RANDOM)
+    val ol = new OutputLayer(2)
+    val nn = cl || RELU || hidden || SIGMOID || ol
+    for ( _ <- 0 to 1000) {
+      val s = (math.random * 2).toInt
+      val y = if ( s == 1 ) DenseVector(1.0,0) else DenseVector(0.0, 1)
+      nn.feedForwardAndPropBack(rndImage(s), y)
+      val currentLoss = nn.update(0.2)
+      println(currentLoss)
+    }
+  }
+
+  private def rndImage(s:Int) = {
+    val x = (math.random * 3).toInt
+    val y = (math.random * 4).toInt
+    image(x,y,s)
+  }
 
   /**
     * We place the given symbol on a 5x5 plane
