@@ -1,6 +1,7 @@
 package org.smurve
 
 import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.numerics.log
 
 package object deeplearning {
 
@@ -13,6 +14,7 @@ package object deeplearning {
 
 
   val EUCLIDEAN = CostFunction ( euclideanCost, euclideanCostDerivative)
+  val CROSS_ENTROPY = CostFunction (crossEntropyCost, crossEntropyCostDerivative)
 
   // Activation functions and their derivatives
   val a_sigmoid: Activation = Activation("sigmoid", sigmoid, sigmoid_prime)
@@ -39,6 +41,16 @@ package object deeplearning {
 
   def euclideanCostDerivative(finalActivation: DV, desired: DV): DV = finalActivation - desired
 
+  def crossEntropyCost(a: DV, y: DV): Double = {
+    val ones = DenseVector.ones[Double](y.length)
+    val res = -(y.t * log(a) + ( ones - y ).t * log(ones - a))
+    res
+  }
 
+  def crossEntropyCostDerivative(a: DV, y: DV) : DV = {
+    val ones = DenseVector.ones[Double](y.length)
+    val res = ( a - y ) :/ ( a :* ( ones - a ))
+    res
+  }
 
 }

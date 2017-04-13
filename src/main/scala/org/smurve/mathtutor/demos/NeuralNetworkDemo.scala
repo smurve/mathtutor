@@ -16,6 +16,7 @@ object NeuralNetworkDemo {
   val N_VALIDATE = 20000
 
   def main(args: Array[String]): Unit = {
+
     val nn = new mnist.NeuralNetwork(Array(2, 5, 5, 2), Array(a_sigmoid, a_sigmoid, a_sigmoid), INIT_WITH_RANDOM)
 
     val f = (x:Double) => 0.1 * (x - 3.5) * (x - 1) * (x + 3.5) * x

@@ -1,4 +1,5 @@
 package org.smurve.mnist
+import scala.collection.immutable.Seq
 
 
 /**
@@ -42,5 +43,49 @@ object MNISTHelper {
     println(image)
     println(shrink(image))
   }
+
+  def shearHorizontal(orig: MNISTImage): MNISTImage = {
+    assert ( orig.width == 28 )
+    val array = orig.bytes
+    val width = orig.width
+    var newArray = Array[Byte]()
+    for ( block <- 0 until 4 ) {
+      for ( row <- 0 until 7 ) {
+        val startAt = ( block * 7 + row ) * width
+        val offset = 3 - block * 2
+        val padding : Array[Byte] = Array.fill[Byte](math.abs(offset))(0.toByte)
+        val res =
+          if ( offset > 0) {
+            val sheared = array.slice(startAt, startAt + 28 - offset)
+            padding ++ sheared
+          } else {
+            val sheared = array.slice(startAt - offset, startAt + 28)
+            sheared ++ padding
+          }
+
+        newArray = newArray ++ res
+      }
+    }
+    MNISTImage(newArray, 28, 28)
+  }
+
+  def pos ( byte : Byte ) : Int = (byte + 256 ) % 256
+
+  def sharpen ( orig: MNISTImage, threshold: Int ) : MNISTImage =
+    MNISTImage ( orig.bytes.map(b => if ( pos(b) > threshold ) 255.toByte else 0.toByte ), orig.width, orig.height)
+
+  def squeeze ( orig: MNISTImage ) : MNISTImage = {
+    val newBytes =
+    ( 0 until 28 ).filter(!Seq(10,20).contains(_)).flatMap(
+      row => orig.bytes.slice ( 28 * row, 28 * (row + 1))).
+      toArray ++ Array.fill[Byte](56)(0.toByte)
+
+
+
+      //zipWithIndex.filter(p=>Seq(10, 20).contains(p._2)).flatMap(p=>p._1)
+
+    MNISTImage(newBytes, 28, 28)
+  }
+
 
 }

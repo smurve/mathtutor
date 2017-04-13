@@ -23,6 +23,7 @@ class AffineLayer(name: String = "Some Affine Layer",
   private var sum_cost: Double = 0.0
   private var batchCounter = 0
 
+
   override def initialize(): Unit = {
 
     val outputSize: Int = nextLayer.get.inputSize
@@ -79,7 +80,7 @@ class AffineLayer(name: String = "Some Affine Layer",
     * update all weights and biases with the average of the most recently finished sample batch
     * @param eta the learning factor
     */
-  def update ( eta: Double ): Unit = {
+  def update ( eta: Double ): Double = {
     assertReady()
 
     w :-= avg_nabla_w * ( eta / batchCounter)

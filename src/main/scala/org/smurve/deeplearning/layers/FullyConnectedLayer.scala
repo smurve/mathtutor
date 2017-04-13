@@ -88,7 +88,7 @@ class FullyConnectedLayer(_inputSize: Int,
     * update all weights and biases with the average of the most recently finished sample batch
     * @param eta the learning factor
     */
-  def update ( eta: Double ): Unit = {
+  def update ( eta: Double ): Double = {
     assertReady()
 
     w :-= avg_nabla_w * ( eta / batchCounter)

@@ -25,14 +25,14 @@ object MNISTDemo {
 
   val shrink4 = new ImageFilter {
     override val transform: (MNISTImage) => MNISTImage = (x: MNISTImage) =>
-      MNISTHelper.shrink (MNISTHelper.shrink(x))
+      MNISTHelper.shrink(MNISTHelper.shrink(x))
     override val width: Int = 7
   }
 
   private val TRANSFORM = shrink2
-  private val N_TRAINING = 30000
-  private val N_BATCH = 50
-  private val ETA = 3.0
+  private val N_TRAINING = 60000
+  private val N_BATCH = 2
+  private val ETA = 0.15
   private val INIT_WITH = INIT_WITH_RANDOM
   private val IMAGE_WIDTH = TRANSFORM.width
   private val IMAGE_HEIGHT = IMAGE_WIDTH
@@ -41,10 +41,10 @@ object MNISTDemo {
   val imgs: MNISTImageFile = new MNISTImageFile("train")
   val lbls: MNISTLabelFile = new MNISTLabelFile("train-labels")
 
-  val input = new AffineLayer("INPUT", IMAGE_SIZE, INIT_WITH, initialValue = 0.001)
-  val hidden1 = new AffineLayer("FIRST HIDDEN", 30, INIT_WITH, initialValue = 0.001 )
-  val hidden2 = new AffineLayer("FIRST HIDDEN", 30, INIT_WITH, initialValue = 0.001 )
-  val output = new deeplearning.layers.OutputLayer(10, EUCLIDEAN)
+  val input = new AffineLayer("INPUT", IMAGE_SIZE, INIT_WITH_RANDOM)
+  val hidden1 = new AffineLayer("FIRST HIDDEN", 30, INIT_WITH_RANDOM)
+  val hidden2 = new AffineLayer("SECOND HIDDEN", 30, INIT_WITH_RANDOM)
+  val output = new deeplearning.layers.OutputLayer(10, CROSS_ENTROPY)
 
   private val NN = input º SIGMOID º hidden1 º SIGMOID º hidden2 º SIGMOID º output
 
@@ -56,17 +56,28 @@ object MNISTDemo {
 
     val beforeTraining = now
 
-    val repeat = 1
+    val repeat = 3
 
     for {
       n <- 0 until N_TRAINING
-      _ <- 0 until repeat
+      r <- 0 until repeat
     } {
-      val img = TRANSFORM.transform(imgs.img(n))
+      val variation =
+        if (r == 1)
+          MNISTHelper.shearHorizontal(imgs.img(n))
+        else if (r == 2)
+          MNISTHelper.squeeze(imgs.img(n))
+        else
+          imgs.img(n)
+
+      val orig = MNISTHelper.sharpen(variation, 127)
+
+      val img = TRANSFORM.transform(orig)
       val lbl = lbls.lblAtPos(n)
       NN.feedForwardAndPropBack(img.dv, lbl)
       if (n % N_BATCH == 0) {
-        NN.update(ETA)
+        val avgCost = NN.update(ETA)
+        println(avgCost)
       }
     }
     val timeForTraining = now - beforeTraining
@@ -86,20 +97,25 @@ object MNISTDemo {
     println(s"sucess rate now: $sumSuccess2/$N_TRAINING = ${sumSuccess2 / N_TRAINING * 100}% ")
 
 
-    (0 until 0).foreach(n => {
-      val img = TRANSFORM.transform(imgs.img(n))
-      println(img)
-      println(lbls.lblAtPos(n))
-      //println(nn.classify(img.dv).toString() + " = " + valueOf (nn.classify(img.dv)))
-      println(NN.feedForward(img.dv).toString() + " = " + valueOf (NN.feedForward(img.dv)))
+    imgs.imgs.zipWithIndex.foreach(p => {
+      val img = shrink2.transform(p._1)
+      val idx = p._2
+      val desired = lbls.lv(idx)
+      val res = valueOf(NN.feedForward(img.dv))
+      if ( res != desired) {
+        println(img)
+        println(s"Labelled   as $desired")
+        println(s"Classified as $res")
+      }
     })
+
 
   }
 
 
-  def valueOf ( output: DV ) : String = {
-    output.toArray.zipWithIndex.foldLeft((0.0,0))(
-      (r,c)=>if(r._1>c._1) (r._1,r._2) else (c._1,c._2))._2.toString
+  def valueOf(output: DV): Int = {
+    output.toArray.zipWithIndex.foldLeft((0.0, 0))(
+      (r, c) => if (r._1 > c._1) (r._1, r._2) else (c._1, c._2))._2
   }
 
 }

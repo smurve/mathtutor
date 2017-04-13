@@ -36,7 +36,7 @@ class ActivationLayer(activation: Activation = a_identity) extends Layer {
     *
     * @param eta the learning factor
     */
-  def update(eta: Double): Unit = {
+  def update(eta: Double): Double = {
     nextLayer.get.update(eta)
   }
 

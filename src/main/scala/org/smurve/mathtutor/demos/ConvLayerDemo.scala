@@ -24,14 +24,17 @@ object ConvLayerDemo {
 
     val size_all_feature_maps = num_features
 
-    val hidden = new FullyConnectedLayer(
-      inputSize = size_all_feature_maps * frame.size_featureMap,
+    val hidden1 = new FullyConnectedLayer(
+      inputSize = size_all_feature_maps * frame.fmap_size,
       outputSize = size_output,
       activation = a_sigmoid
     )
 
+    val
+
+
     convLayer = new ConvNetworkLayer(
-      next = Some(hidden),
+      next = Some(hidden1),
       frame = frame,
       num_features = num_features)
 
@@ -84,7 +87,7 @@ object ConvLayerDemo {
 
     val chart = new LineChart()(PlotterSpec())
 
-    chart.showData(hidden.costByTime)
+    chart.showData(hidden1.costByTime)
   }
 
   def nextTrainingRecord: (MNISTImage, DenseVector[Double]) = {
