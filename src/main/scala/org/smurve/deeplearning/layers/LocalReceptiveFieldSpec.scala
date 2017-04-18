@@ -40,8 +40,6 @@ case class LocalReceptiveFieldSpec(input_cols: Int, input_rows: Int, lrf_cols: I
       y <- yr
       x <- xr
     } yield x + y * fmap_cols
-    if ( seq.contains(12))
-      print ("ouch")
     seq.toArray.sorted
   }
 

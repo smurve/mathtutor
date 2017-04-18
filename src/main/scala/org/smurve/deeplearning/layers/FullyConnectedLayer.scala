@@ -10,7 +10,8 @@ import org.smurve.deeplearning._
 class FullyConnectedLayer(_inputSize: Int,
                           initWith: InitWith = INIT_WITH_CONST,
                           initialValue: Double = .5,
-                          inputActivation: Activation = a_identity )
+                          inputActivation: Activation = a_scale(1),
+                         eta: Double )
   extends Layer {
 
   // the weights
@@ -86,16 +87,15 @@ class FullyConnectedLayer(_inputSize: Int,
 
   /**
     * update all weights and biases with the average of the most recently finished sample batch
-    * @param eta the learning factor
     */
-  def update ( eta: Double ): Double = {
+  def update (): Double = {
     assertReady()
 
     w :-= avg_nabla_w * ( eta / batchCounter)
     b :-= avg_nabla_b * ( eta / batchCounter)
 
     resetBatch()
-    nextLayer.get.update(eta)
+    nextLayer.get.update()
   }
 
 

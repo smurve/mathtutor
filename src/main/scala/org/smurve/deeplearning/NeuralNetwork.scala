@@ -9,10 +9,8 @@ class NeuralNetwork(input: Layer, output: OutputLayer) extends Layer  {
 
   /**
     * tell the input layer to update, input layer will call the subsequent layers
-    *
-    * @param eta : the learning factor
     */
-  override def update(eta: Double): Double = input.update(eta)
+  override def update(): Double = input.update()
 
   /**
     * redirect to the input layer to update, input layer will call the subsequent layers

@@ -4,12 +4,18 @@ import breeze.linalg.{DenseMatrix, DenseVector}
 import org.smurve.deeplearning._
 
 /**
-  * A layer that defines an affine transformation
+  * A fully connected or dense layer
+  * @param name: A name for diagnostics
+  * @param _inputSize the size of the input vector
+  * @param initWith initialization strategy
+  * @param initialValue a number to initialize all weights with - typically for diagnostic purposes
+  * @param eta the learning factor
   */
 class AffineLayer(name: String = "Some Affine Layer",
                   _inputSize: Int,
                   initWith: InitWith = INIT_WITH_CONST,
-                  initialValue: Double = .5)  extends Layer {
+                  initialValue: Double = .5,
+                  eta: Double )  extends Layer {
 
   // the weights
   private var w: DM = _
@@ -17,10 +23,17 @@ class AffineLayer(name: String = "Some Affine Layer",
   // the bias
   private var b: DV = _
 
+  def dump : (DM, DV) = (w,b)
+
   private var avg_nabla_b: DV = _ // DenseVector.zeros(outputSize)
   private var avg_nabla_w: DM = _ // DenseMatrix.zeros(outputSize, inputSize)
+  private var prev_avg_nabla_b: DV = _ // DenseVector.zeros(outputSize)
+  private var prev_avg_nabla_w: DM = _ // DenseMatrix.zeros(outputSize, inputSize)
 
-  private var batchCounter = 0
+  private var etaW: DM = _
+  private var etaB: DV = _
+
+  private var batchCounter = 0.0
 
 
   override def initialize(): Unit = {
@@ -33,6 +46,12 @@ class AffineLayer(name: String = "Some Affine Layer",
       w = DenseMatrix.rand(outputSize, _inputSize) - DenseMatrix.fill(outputSize, _inputSize){0.5}
       b = DenseVector.rand(outputSize) - DenseVector.fill(outputSize) {0.5}
     }
+    etaW = DenseMatrix.fill(outputSize, _inputSize){eta}
+    etaB = DenseVector.fill(outputSize){eta}
+
+    prev_avg_nabla_w = DenseMatrix.fill(outputSize, _inputSize){0.0}
+    prev_avg_nabla_b = DenseVector.fill(outputSize){0.0}
+
     resetBatch()
     previousLayer.foreach(_.initialize())
   }
@@ -67,7 +86,6 @@ class AffineLayer(name: String = "Some Affine Layer",
     val z_out = w * a_in + b
     val delta = nextLayer.get.feedForwardAndPropBack(z_out, y)
 
-
     avg_nabla_b += delta
     avg_nabla_w += delta * a_in.t
 
@@ -76,16 +94,24 @@ class AffineLayer(name: String = "Some Affine Layer",
 
   /**
     * update all weights and biases with the average of the most recently finished sample batch
-    * @param eta the learning factor
     */
-  def update ( eta: Double ): Double = {
+  def update(): Double = {
     assertReady()
 
-    w :-= avg_nabla_w * ( eta / batchCounter)
-    b :-= avg_nabla_b * ( eta / batchCounter)
+    //val half_or_double_w = (prev_avg_nabla_w :* avg_nabla_w).map(x=>if(x>0) 2.0 else 0.5)
+    //val half_or_double_b = (prev_avg_nabla_b :* avg_nabla_b).map(x=>if(x>0) 2.0 else 0.5)
+
+    //etaW = etaW :* half_or_double_w
+    //etaB = etaB :* half_or_double_b
+
+    w :-= (avg_nabla_w :* etaW) / batchCounter
+    b :-= (avg_nabla_b :* etaB) / batchCounter
+
+    prev_avg_nabla_w = avg_nabla_w
+    prev_avg_nabla_b = avg_nabla_b
 
     resetBatch()
-    nextLayer.get.update(eta)
+    nextLayer.get.update()
   }
 
 

@@ -11,9 +11,9 @@ class AffineAndActivationLayerTest extends FlatSpec with ShouldMatchers {
 
   "a linear Networks" should "exhibit linear behaviour" in {
 
-    val input = new AffineLayer ( "INPUT", _inputSize = 4, initialValue = 1.0 )
-    val hidden1 = new AffineLayer ( "HIDDEN 1", _inputSize = 3, initialValue = 1.0 )
-    val hidden2 = new AffineLayer ( "HIDDEN 2", _inputSize = 2, initialValue = 1.0 )
+    val input = new AffineLayer ( "INPUT", _inputSize = 4, initialValue = 1.0, eta = 0.1 )
+    val hidden1 = new AffineLayer ( "HIDDEN 1", _inputSize = 3, initialValue = 1.0, eta = 0.1 )
+    val hidden2 = new AffineLayer ( "HIDDEN 2", _inputSize = 2, initialValue = 1.0, eta = 0.1)
     val out = new OutputLayer( _inputSize = 2, EUCLIDEAN )
 
     // stack'em: Only now the weights are initialized
@@ -32,9 +32,9 @@ class AffineAndActivationLayerTest extends FlatSpec with ShouldMatchers {
   "A linear network" should "easily learn the simple concept of linear separability" in {
 
     // We're using two hidden layers just to make it a bit more complex. A single layer would do.
-    val input = new AffineLayer ( _inputSize = 4, initWith = INIT_WITH_RANDOM)
-    val hidden1 = new AffineLayer ( _inputSize = 3, initWith = INIT_WITH_RANDOM)
-    val hidden2 = new AffineLayer ( _inputSize = 2, initWith = INIT_WITH_RANDOM)
+    val input = new AffineLayer ( _inputSize = 4, initWith = INIT_WITH_RANDOM, eta = 0.1)
+    val hidden1 = new AffineLayer ( _inputSize = 3, initWith = INIT_WITH_RANDOM, eta = 0.1)
+    val hidden2 = new AffineLayer ( _inputSize = 2, initWith = INIT_WITH_RANDOM, eta = 0.1)
     val out = new OutputLayer( _inputSize = 2, EUCLIDEAN )
 
     // stack'em: Only now the weights are initialized
@@ -46,7 +46,7 @@ class AffineAndActivationLayerTest extends FlatSpec with ShouldMatchers {
       val nextTest = rnd()
       nn.feedForwardAndPropBack(nextTest._1, nextTest._2)
       println(nn.asInstanceOf[NeuralNetwork].recentLoss)
-      nn.update(0.1)
+      nn.update()
     }
 
     var sum_good = 0.0

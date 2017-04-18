@@ -33,7 +33,6 @@ object MNISTDemo {
   private val N_TRAINING = 60000
   private val N_BATCH = 2
   private val ETA = 0.15
-  private val INIT_WITH = INIT_WITH_RANDOM
   private val IMAGE_WIDTH = TRANSFORM.width
   private val IMAGE_HEIGHT = IMAGE_WIDTH
   private val IMAGE_SIZE = IMAGE_HEIGHT * IMAGE_WIDTH
@@ -41,9 +40,9 @@ object MNISTDemo {
   val imgs: MNISTImageFile = new MNISTImageFile("train")
   val lbls: MNISTLabelFile = new MNISTLabelFile("train-labels")
 
-  val input = new AffineLayer("INPUT", IMAGE_SIZE, INIT_WITH_RANDOM)
-  val hidden1 = new AffineLayer("FIRST HIDDEN", 30, INIT_WITH_RANDOM)
-  val hidden2 = new AffineLayer("SECOND HIDDEN", 30, INIT_WITH_RANDOM)
+  val input = new AffineLayer("INPUT", IMAGE_SIZE, INIT_WITH_RANDOM, eta = ETA)
+  val hidden1 = new AffineLayer("FIRST HIDDEN", 30, INIT_WITH_RANDOM, eta = ETA)
+  val hidden2 = new AffineLayer("SECOND HIDDEN", 30, INIT_WITH_RANDOM, eta = ETA)
   val output = new deeplearning.layers.OutputLayer(10, CROSS_ENTROPY)
 
   private val NN = input º SIGMOID º hidden1 º SIGMOID º hidden2 º SIGMOID º output
@@ -76,7 +75,7 @@ object MNISTDemo {
       val lbl = lbls.lblAtPos(n)
       NN.feedForwardAndPropBack(img.dv, lbl)
       if (n % N_BATCH == 0) {
-        val avgCost = NN.update(ETA)
+        val avgCost = NN.update()
         println(avgCost)
       }
     }

@@ -12,10 +12,9 @@ abstract class Layer()  {
 
   /**
     * update the weights from the average corrections collected in previous learnings
-    * @param eta: the learning factor
     * @return the recent average loss
     */
-  def update ( eta: Double ): Double
+  def update (): Double
 
   /**
     * just the forward feed, returns the final activations as a result

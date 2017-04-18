@@ -18,7 +18,8 @@ package object deeplearning {
 
   // Activation functions and their derivatives
   val a_sigmoid: Activation = Activation("sigmoid", sigmoid, sigmoid_prime)
-  val a_identity: Activation = Activation("identity", x => x, x => DenseVector.ones(x.length))
+  def a_scale(scale: Double): Activation = Activation("scale",
+    x => x * scale , x => DenseVector.fill(x.length){scale})
   val a_relu: Activation = Activation( "ReLU", relu, relu_prime )
 
   def sigmoid(v: DenseVector[Double]): DenseVector[Double] = {

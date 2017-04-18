@@ -15,10 +15,8 @@ class OutputLayer(_inputSize: Int, costFunction: CostFunction = EUCLIDEAN) exten
 
   /**
     * update the statistics per batch
-    *
-    * @param eta : the learning factor
     */
-  override def update(eta: Double): Double = {
+  override def update(): Double = {
     avgCostByTime = batchCost / batchCounter :: avgCostByTime
     batchCounter = 0
     batchCost = 0
