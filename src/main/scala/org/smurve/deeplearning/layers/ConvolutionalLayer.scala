@@ -105,7 +105,9 @@ class ConvolutionalLayer(val lrfSpecs: Array[LocalReceptiveFieldSpec], val eta: 
     * @return the back-propagated deltas
     */
   override def feedForwardAndPropBack(x: DV, y: DV): DV = {
-    val delta = nextLayer.get.feedForwardAndPropBack( z(x), y)
+
+    val zx = z(x)
+    val delta = nextLayer.get.feedForwardAndPropBack( zx, y)
 
     // update weights and biases
     batchCounter += 1

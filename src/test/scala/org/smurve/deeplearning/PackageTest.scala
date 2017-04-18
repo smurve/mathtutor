@@ -35,4 +35,20 @@ class PackageTest extends FlatSpec with ShouldMatchers {
 
     println(nablaC)
   }
+
+  "Wolfie's tau function" should "'combine' sigmoid and something like ReLU " in {
+    val tolerance = 1E-5
+    val x = DenseVector(0.0)
+    val y = tau(x)
+    y(0) should be (0.5)
+    tau_prime(x)(0) should be (.25)
+    val dx = DenseVector(1E-5)
+    val y_r = tau(x :+ dx)
+    val y_l = tau(x :- dx)
+    val delta_nabla_r: DV = tau_prime(x) - (y_r - y) / 1e-5
+    math.abs(delta_nabla_r(0)) should be < tolerance
+
+    val delta_nabla_l: DV = tau_prime(x) - (y - y_l) / 1e-5
+    math.abs(delta_nabla_l(0)) should be < tolerance
+  }
 }

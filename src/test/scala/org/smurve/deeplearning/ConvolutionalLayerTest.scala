@@ -158,16 +158,19 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
 
   "A convolutional layer" should "be deterministic in the smallest feature map corner case" in {
 
-    val imgW = 6
-    val imgH = 6
-    val randSpecs =
-      Array(LocalReceptiveFieldSpec(imgW,imgH,3,2),LocalReceptiveFieldSpec(imgW,imgH,3,2))
-    val cl = new ConvolutionalLayer(lrfSpecs = randSpecs, eta = 3)
+    val imgW = 10
+    val imgH = 9
+    val randSpecs = Array(
+        LocalReceptiveFieldSpec(imgW,imgH,3,2, weights = Some(DenseVector(.5,.5,.5,.5,.5,.5))),
+        LocalReceptiveFieldSpec(imgW,imgH,3,2, weights = Some(DenseVector(.5,.5,.5,.5,.5,.5))))
+
+    val conv = new ConvolutionalLayer(lrfSpecs = randSpecs, eta = 6)
+    val pooling = new PoolingLayer(outputWidth = 2)
     val inputSize = ( imgW - 3 + 1 ) * ( imgH - 2 + 1 ) * 2
-    val hidden = new AffineLayer(_inputSize = inputSize, initWith = INIT_WITH_RANDOM, eta = 8)
+    val dense = new AffineLayer(_inputSize = inputSize / 4, initWith = INIT_WITH_RANDOM, eta = 2)
     val ol = new OutputLayer(2)
 
-    val nn = cl || RELU || hidden || SIGMOID || ol
+    val nn = conv || RELU || pooling || dense || SIGMOID || ol
 
     val N_t = 30000
     val gen = new ImageGenerator(imgW, imgH)
@@ -183,7 +186,7 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
 
     var success = 0.0
     val N_test = 1000
-    for ( n <- 1 to N_test) {
+    for ( _ <- 1 to N_test) {
       val img = gen.rndImage(gen.UP, gen.DOWN)
       val y = if (img.symbol == gen.UP) DenseVector(0.8, 0) else DenseVector(0, 0.8)
       val res = nn.feedForward(img.asDV)
@@ -197,16 +200,16 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
 
 
     println("hidden layer")
-    val row0 = hidden.dump._1(0,::)
-    val row1 = hidden.dump._1(1,::)
+    val row0 = dense.dump._1(0,::)
+    val row1 = dense.dump._1(1,::)
     println (row0.t.toArray.toList.map(v=>(v*100).toInt/100.0))
     println (row1.t.toArray.toList.map(v=>(v*100).toInt/100.0))
 
     println("convolutional layer")
-    val w0 = cl.lrfSpecs(0).w
-    val b0 = cl.lrfSpecs(0).b
-    val w1 = cl.lrfSpecs(1).w
-    val b1 = cl.lrfSpecs(1).b
+    val w0 = conv.lrfSpecs(0).w
+    val b0 = conv.lrfSpecs(0).b
+    val w1 = conv.lrfSpecs(1).w
+    val b1 = conv.lrfSpecs(1).b
 
     val w0_u = w0.t * upImg + b0
     val w0_d = w0.t * downImg + b0

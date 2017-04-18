@@ -6,7 +6,7 @@ import org.smurve.deeplearning._
   * Output Layer
   * responsible for the loss function calculus and stats
   */
-class OutputLayer(_inputSize: Int, costFunction: CostFunction = EUCLIDEAN) extends Layer {
+class OutputLayer(size: Int, costFunction: CostFunction = EUCLIDEAN) extends Layer {
 
   var recentLoss: Double = _
   private var batchCost = 0.0
@@ -63,7 +63,7 @@ class OutputLayer(_inputSize: Int, costFunction: CostFunction = EUCLIDEAN) exten
     *
     * @return the size of the expected input vector
     */
-  override def inputSize: Int = _inputSize
+  override def inputSize: Int = size
 
   /**
     * initialize weights, to be called by the next layer, should continue until the input layer

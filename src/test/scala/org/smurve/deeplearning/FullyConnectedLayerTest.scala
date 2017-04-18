@@ -14,7 +14,7 @@ class FullyConnectedLayerTest extends FlatSpec with ShouldMatchers {
     val input = new FullyConnectedLayer ( _inputSize = 4, initialValue = 1.0, eta = 1 )
     val hidden1 = new FullyConnectedLayer ( _inputSize = 3, initialValue = 1.0, eta = 1 )
     val hidden2 = new FullyConnectedLayer ( _inputSize = 2, initialValue = 1.0, eta = 1 )
-    val out = new OutputLayer( _inputSize = 2, EUCLIDEAN )
+    val out = new OutputLayer( size = 2, EUCLIDEAN )
 
     // stack'em: Only now the weights are initialized
     val nn = input º hidden1 º hidden2 º out
@@ -35,7 +35,7 @@ class FullyConnectedLayerTest extends FlatSpec with ShouldMatchers {
     val input = new FullyConnectedLayer ( _inputSize = 4, initWith = INIT_WITH_RANDOM, inputActivation=a_scale(1), eta = 0.1)
     val hidden1 = new FullyConnectedLayer ( _inputSize = 3, initWith = INIT_WITH_RANDOM, inputActivation=a_relu, eta = 0.1 )
     val hidden2 = new FullyConnectedLayer ( _inputSize = 2, initWith = INIT_WITH_RANDOM, inputActivation=a_relu, eta = 0.1 )
-    val out = new OutputLayer( _inputSize = 2, EUCLIDEAN )
+    val out = new OutputLayer( size = 2, EUCLIDEAN )
 
     // stack'em: Only now the weights are initialized
     val nn = input º hidden1 º hidden2 º SIGMOID º out
