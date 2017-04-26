@@ -56,7 +56,7 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
 
     val cl = new ConvolutionalLayer(lrfSpecs = lrfSpecs, eta = 0.1)
     val ol = new OutputLayer(24)
-    val nn = cl º RELU º ol
+    val nn = cl || RELU || ol
     //cl.lrfSpecs.foreach(s => println(s.w))
     val res = nn.feedForward(image(2, 2, UP))
     //println(res)
@@ -67,7 +67,7 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
   "m_of_t" should "determine the feature map the output with index t is produced with" in {
     val cl = new ConvolutionalLayer(lrfSpecs = lrfSpecs, eta = 0.1)
     val ol = new OutputLayer(24)
-    val nn = cl º RELU º ol
+    val nn = cl || RELU || ol
     val layer = nn.entry.asInstanceOf[ConvolutionalLayer]
     layer.m_of_t(0) should be (0)
     layer.m_of_t(11) should be (0)
@@ -106,7 +106,7 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
     val cl = new ConvolutionalLayer(lrfSpecs = lrfSpecs, eta = 0.0)
     val hidden = new AffineLayer(_inputSize = 24, initWith = INIT_WITH_RANDOM, eta = 0)
     val ol = new OutputLayer(2)
-    val nn = cl || RELU || hidden || SIGMOID || ol
+    val nn = cl || SCALE(1.0) || hidden || SIGMOID || ol
 
     val infd = 1E-5
     val acceptable = 1E-4
@@ -121,7 +121,7 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
 
     println(delta)
     println(delta2_inf)
-    math.abs(delta2_inf - delta(2)) / (delta2_inf + delta(2)) should be < acceptable
+    math.abs(delta2_inf - delta(11)) / (delta2_inf + delta(11)) should be < acceptable
 
   }
 
@@ -155,129 +155,6 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
     println (row1.t.toArray.toList.map(v=>(v*10).toInt))
   }
 
-
-  "A convolutional layer" should "be deterministic in the smallest feature map corner case" in {
-
-    val imgW = 10
-    val imgH = 9
-    val randSpecs = Array(
-        LocalReceptiveFieldSpec(imgW,imgH,3,2, weights = Some(DenseVector(.5,.5,.5,.5,.5,.5))),
-        LocalReceptiveFieldSpec(imgW,imgH,3,2, weights = Some(DenseVector(.5,.5,.5,.5,.5,.5))))
-
-    val conv = new ConvolutionalLayer(lrfSpecs = randSpecs, eta = 6)
-    val pooling = new PoolingLayer(outputWidth = 2)
-    val inputSize = ( imgW - 3 + 1 ) * ( imgH - 2 + 1 ) * 2
-    val dense = new AffineLayer(_inputSize = inputSize / 4, initWith = INIT_WITH_RANDOM, eta = 2)
-    val ol = new OutputLayer(2)
-
-    val nn = conv || RELU || pooling || dense || SIGMOID || ol
-
-    val N_t = 30000
-    val gen = new ImageGenerator(imgW, imgH)
-    for ( n <- 1 until N_t) {
-      val img = gen.rndImage(gen.UP, gen.DOWN)
-      val y = if (img.symbol == gen.UP) DenseVector(0.8, 0) else DenseVector(0, 0.8)
-      nn.feedForwardAndPropBack(img.asDV, y)
-      if ( n % 100 == 0) {
-        val currentLoss = nn.update()
-        println(currentLoss)
-      }
-    }
-
-    var success = 0.0
-    val N_test = 1000
-    for ( _ <- 1 to N_test) {
-      val img = gen.rndImage(gen.UP, gen.DOWN)
-      val y = if (img.symbol == gen.UP) DenseVector(0.8, 0) else DenseVector(0, 0.8)
-      val res = nn.feedForward(img.asDV)
-      if ( (y(0) - y(1))*(res(0)-res(1)) > 0) {
-        success += 1
-      }
-    }
-    success /= 10
-    println("==========================================================")
-    println(s"Success: $success%")
-
-
-    println("hidden layer")
-    val row0 = dense.dump._1(0,::)
-    val row1 = dense.dump._1(1,::)
-    println (row0.t.toArray.toList.map(v=>(v*100).toInt/100.0))
-    println (row1.t.toArray.toList.map(v=>(v*100).toInt/100.0))
-
-    println("convolutional layer")
-    val w0 = conv.lrfSpecs(0).w
-    val b0 = conv.lrfSpecs(0).b
-    val w1 = conv.lrfSpecs(1).w
-    val b1 = conv.lrfSpecs(1).b
-
-    val w0_u = w0.t * upImg + b0
-    val w0_d = w0.t * downImg + b0
-    val w1_u = w1.t * upImg + b1
-    val w1_d = w1.t * downImg + b1
-
-    val w0i = w0.toArray.map(v=>(v*100).toInt/100.0).toList
-    val w1i = w1.toArray.map(v=>(v*100).toInt/100.0).toList
-
-    println (s"w0 =  $w0i, b0 = $b0, w0*up = $w0_u, w0*down = $w0_d")
-    println (s"w1 =  $w1i, b1 = $b1, w1*up = $w1_u, w1*down = $w1_d")
-
-    // can't guarantee, mostly it works, sometimes gets stuck in a
-    //success > 80 should be(true)
-  }
-
-  "A convolutional layer" should "be able to identify arbitrary patterns anywhere on the image" in {
-
-    val cl = new ConvolutionalLayer(lrfSpecs = randSpecs, eta = 30 )
-    val hidden = new AffineLayer(_inputSize = 24, initWith = INIT_WITH_RANDOM, eta = 30)
-    val ol = new OutputLayer(2)
-    val nn = cl || SIGMOID || hidden || SIGMOID || ol
-    val N_t = 10000
-    for ( n <- 1 until N_t) {
-      val (img, y) = rndImage
-      nn.feedForwardAndPropBack(img, y)
-      if ( n % (N_t / 100) == 0 ) {
-        val currentLoss = nn.update()
-        println(currentLoss)
-      }
-    }
-
-    val N_test = 10000
-    var success = 0
-    for ( _ <- 0 until N_test ) {
-      val (img, y) = rndImage
-      val res = nn.feedForward(img)
-      if ( (y(0) - y(1)) * ( res(0) - res(1)) > 0 ) success += 1
-    }
-    val successRate = success * 100.0 / N_test
-    println(s"Success: $successRate %")
-
-    println("hidden layer")
-    val row0 = hidden.dump._1(0,::)
-    val row1 = hidden.dump._1(1,::)
-    println (row0.t.toArray.toList.map(v=>(v*10).toInt))
-    println (row1.t.toArray.toList.map(v=>(v*10).toInt))
-
-    println("convolutional layer")
-    val w0 = cl.lrfSpecs(0).w
-    val b0 = cl.lrfSpecs(0).b
-    val w1 = cl.lrfSpecs(1).w
-    val b1 = cl.lrfSpecs(1).b
-
-    val w0_u = w0.t * upImg + b0
-    val w0_d = w0.t * downImg + b0
-    val w1_u = w1.t * upImg + b1
-    val w1_d = w1.t * downImg + b1
-
-    val w0i = w0.toArray.map(v=>(v*100).toInt/100.0).toList
-    val w1i = w1.toArray.map(v=>(v*100).toInt/100.0).toList
-
-    println (s"w0 =  $w0i, b0 = $b0, w0*up = $w0_u, w0*down = $w0_d")
-    println (s"w1 =  $w1i, b1 = $b1, w1*up = $w1_u, w1*down = $w1_d")
-
-    // can't guarantee, mostly it works, sometimes gets stuck in a
-    //success > 80 should be(true)
-  }
 
 
   private def rndImage = {

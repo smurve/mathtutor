@@ -63,7 +63,17 @@ package object deeplearning {
 
   def euclideanCostDerivative(finalActivation: DV, desired: DV): DV = finalActivation - desired
 
+  /**
+    * this helps to cope with the numerical instability at x_i = 1.0. Note that the sigmoid function
+    * returns exactly 1.0 for inputs x >= 37
+    */
+  private val ALMOST_ONE = 1-1E-16
+
   def crossEntropyCost(a: DV, y: DV): Double = {
+    a.toArray.zipWithIndex.foreach(p=>{
+      if (p._1 == 1.0 && y(p._2) == 1.0 )
+        a(p._2) = ALMOST_ONE
+    })
     val ones = DenseVector.ones[Double](y.length)
     val res = -(y.t * log(a) + ( ones - y ).t * log(ones - a))
     res

@@ -30,9 +30,6 @@ class AffineLayer(name: String = "Some Affine Layer",
   private var prev_avg_nabla_b: DV = _ // DenseVector.zeros(outputSize)
   private var prev_avg_nabla_w: DM = _ // DenseMatrix.zeros(outputSize, inputSize)
 
-  private var etaW: DM = _
-  private var etaB: DV = _
-
   private var batchCounter = 0.0
 
 
@@ -46,8 +43,6 @@ class AffineLayer(name: String = "Some Affine Layer",
       w = DenseMatrix.rand(outputSize, _inputSize) - DenseMatrix.fill(outputSize, _inputSize){0.5}
       b = DenseVector.rand(outputSize) - DenseVector.fill(outputSize) {0.5}
     }
-    etaW = DenseMatrix.fill(outputSize, _inputSize){eta}
-    etaB = DenseVector.fill(outputSize){eta}
 
     prev_avg_nabla_w = DenseMatrix.fill(outputSize, _inputSize){0.0}
     prev_avg_nabla_b = DenseVector.fill(outputSize){0.0}
@@ -98,17 +93,8 @@ class AffineLayer(name: String = "Some Affine Layer",
   def update(): Double = {
     assertReady()
 
-    //val half_or_double_w = (prev_avg_nabla_w :* avg_nabla_w).map(x=>if(x>0) 2.0 else 0.5)
-    //val half_or_double_b = (prev_avg_nabla_b :* avg_nabla_b).map(x=>if(x>0) 2.0 else 0.5)
-
-    //etaW = etaW :* half_or_double_w
-    //etaB = etaB :* half_or_double_b
-
-    w :-= (avg_nabla_w :* etaW) / batchCounter
-    b :-= (avg_nabla_b :* etaB) / batchCounter
-
-    prev_avg_nabla_w = avg_nabla_w
-    prev_avg_nabla_b = avg_nabla_b
+    w :-= (avg_nabla_w * eta) / batchCounter
+    b :-= (avg_nabla_b * eta) / batchCounter
 
     resetBatch()
     nextLayer.get.update()
