@@ -10,11 +10,14 @@ import org.smurve.mnist.{ConvNetworkLayer, MNISTImage}
   */
 class ConvolutionTest extends FlatSpec with ShouldMatchers {
 
-  "A convolution frame" should "select the right indexes" in {
+  "An LRF spec" should "calculate output sizes correctly" in {
     val frame = LocalReceptiveFieldSpec(input_cols = 28, input_rows = 28, lrf_cols = 4, lrf_rows = 3)
-    frame.size_featureMap should be((28 - 4 + 1) * (28 - 3 + 1))
-    frame.tau(27, 0) should be(28 + 2)
-    //println(frame.tau(27).toList)
+    frame.fmap_size should be((28 - 4 + 1) * (28 - 3 + 1))
+  }
+
+  "An LRF spec" should "calculate the domain index from the feature map index correctly" in {
+    val frame = LocalReceptiveFieldSpec(input_cols = 28, input_rows = 28, lrf_cols = 4, lrf_rows = 3)
+    frame.dTF(27, 0) should be(28 + 2)
   }
 
   "A convolution network" should "scan the input vector" in {

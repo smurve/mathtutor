@@ -38,8 +38,45 @@ class MNISTHelperTest extends FlatSpec with ShouldMatchers {
       129,127,65,63
     ).map(_.toByte), 2, 2)(0) should be ( b(96) )
 
+  }
+
+  "Shearing" should "change the image a little" in {
+
+    val file = new MNISTImageFile("train")
 
 
+    val image = file.img(2)
+
+    val sheared = h.shearHorizontal(image)
+
+    println(image)
+    println(sheared)
+
+  }
+
+  "Sharpening" should "sharpen the image" in {
+
+    val file = new MNISTImageFile("train")
+
+    val image = file.img(2)
+
+    val sharpened = h.sharpen(image, 127)
+
+    println(image)
+    println(sharpened)
+
+  }
+
+  "Squeezing" should "squeeze the image" in {
+
+    val file = new MNISTImageFile("train")
+
+    val image = file.img(2)
+
+    val squeezed = h.squeeze(image)
+
+    println(image)
+    println(squeezed)
 
   }
 
@@ -60,4 +97,6 @@ class MNISTHelperTest extends FlatSpec with ShouldMatchers {
 
     file.lblAtPos(0) should be ( DenseVector(0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0))
   }
+
+
 }

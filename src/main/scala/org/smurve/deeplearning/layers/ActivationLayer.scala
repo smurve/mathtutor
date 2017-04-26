@@ -5,7 +5,7 @@ import org.smurve.deeplearning._
 /**
   * A mere activation layer. Applies the activation function to the each component of the input vector
   */
-class ActivationLayer(activation: Activation = a_identity) extends Layer {
+class ActivationLayer(activation: Activation = a_scale(1)) extends Layer {
 
   override def inputSize: Int = nextLayer.map(_.inputSize)
     .getOrElse(throw new IllegalStateException("not initialized yet."))
@@ -33,11 +33,9 @@ class ActivationLayer(activation: Activation = a_identity) extends Layer {
 
   /**
     * no parameters to update here, just delegate downstream
-    *
-    * @param eta the learning factor
     */
-  def update(eta: Double): Unit = {
-    nextLayer.get.update(eta)
+  def update(): Double = {
+    nextLayer.get.update()
   }
 
   /**

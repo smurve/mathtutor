@@ -6,7 +6,7 @@ import org.smurve.deeplearning._
   * Output Layer
   * responsible for the loss function calculus and stats
   */
-class OutputLayer(_inputSize: Int, costFunction: CostFunction) extends Layer {
+class OutputLayer(size: Int, costFunction: CostFunction = EUCLIDEAN) extends Layer {
 
   var recentLoss: Double = _
   private var batchCost = 0.0
@@ -15,13 +15,12 @@ class OutputLayer(_inputSize: Int, costFunction: CostFunction) extends Layer {
 
   /**
     * update the statistics per batch
-    *
-    * @param eta : the learning factor
     */
-  override def update(eta: Double): Unit = {
+  override def update(): Double = {
     avgCostByTime = batchCost / batchCounter :: avgCostByTime
     batchCounter = 0
     batchCost = 0
+    avgCostByTime.head
   }
 
   /**
@@ -40,11 +39,13 @@ class OutputLayer(_inputSize: Int, costFunction: CostFunction) extends Layer {
     */
   override def feedForwardAndPropBack(a_in: DV, y: DV): DV = {
 
+    batchCounter += 1
     recentLoss = costFunction.fn(a_in, y)
     batchCost += recentLoss
 
     // back propagation
-    costFunction.deriv(a_in, y)
+    val delta = costFunction.deriv(a_in, y)
+    delta
   }
 
 
@@ -53,7 +54,7 @@ class OutputLayer(_inputSize: Int, costFunction: CostFunction) extends Layer {
     * @param next unused
     * @return Nothing. Throws an exception
     */
-  override def * (next: Layer): Layer = {
+  override def ||(next: Layer): Layer = {
     throw new NetworkActivityException("You can't connect the output layer to a subsequent layer")
   }
 
@@ -62,7 +63,7 @@ class OutputLayer(_inputSize: Int, costFunction: CostFunction) extends Layer {
     *
     * @return the size of the expected input vector
     */
-  override def inputSize: Int = _inputSize
+  override def inputSize: Int = size
 
   /**
     * initialize weights, to be called by the next layer, should continue until the input layer

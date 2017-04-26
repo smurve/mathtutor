@@ -9,10 +9,8 @@ class NeuralNetwork(input: Layer, output: OutputLayer) extends Layer  {
 
   /**
     * tell the input layer to update, input layer will call the subsequent layers
-    *
-    * @param eta : the learning factor
     */
-  override def update(eta: Double): Unit = input.update(eta)
+  override def update(): Double = input.update()
 
   /**
     * redirect to the input layer to update, input layer will call the subsequent layers
@@ -31,6 +29,14 @@ class NeuralNetwork(input: Layer, output: OutputLayer) extends Layer  {
     */
   override def feedForwardAndPropBack(x: DV, y: DV): DV = input.feedForwardAndPropBack(x, y)
 
+  override def entry: Layer = input
+
+  override def exit: OutputLayer = output
+
+  /**
+    * Recent accumulated loss
+    * @return
+    */
   def recentLoss: Double = {
     output.recentLoss
   }
@@ -46,4 +52,5 @@ class NeuralNetwork(input: Layer, output: OutputLayer) extends Layer  {
     * initialize weights, to be called by the next layer, should continue until the input layer
     */
   override def initialize(): Unit = output.initialize()
+
 }

@@ -12,9 +12,9 @@ abstract class Layer()  {
 
   /**
     * update the weights from the average corrections collected in previous learnings
-    * @param eta: the learning factor
+    * @return the recent average loss
     */
-  def update ( eta: Double ): Unit
+  def update (): Double
 
   /**
     * just the forward feed, returns the final activations as a result
@@ -37,14 +37,14 @@ abstract class Layer()  {
     * @param next the inner layer
     * @return
     */
-  def º ( next: Layer ): Layer = this * next
+  def º ( next: Layer ): Layer = this || next
 
   /**
     * Layer stacking operator.
     * @param next the subsequent layer
     * @return this, now representing the entire expression, or a NN, if the next layer is the output layer
     */
-  def * ( next: Layer ): Layer = {
+  def || (next: Layer ): Layer = {
 
     val thisExit = this.exit
     val nextEntry = next.entry
@@ -75,7 +75,7 @@ abstract class Layer()  {
   def exit: Layer = if (nextLayer.isDefined) nextLayer.get.exit else this
 
   /**
-    * initialize weights, to be called by the next layer, should continue until the input layer
+    * initialize weights, will be called by the subsequent layer. Should continue until the input layer
     */
-  def initialize () : Unit
+  private [layers] def initialize () : Unit
 }
