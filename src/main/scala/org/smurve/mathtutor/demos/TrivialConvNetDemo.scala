@@ -3,6 +3,7 @@ package org.smurve.mathtutor.demos
 import breeze.linalg.DenseVector
 import org.smurve.deeplearning._
 import org.smurve.deeplearning.layers._
+import org.smurve.deeplearning.optimizers.SignumBasedMomentum
 import org.smurve.deeplearning.utilities.ImageGenerator
 
 /**
@@ -33,7 +34,9 @@ object TrivialConvNetDemo {
     val pooling = new PoolingLayer(outputWidth = 2)
     val inputSize = (imgW - 3 + 1) * (imgH - 2 + 1) * 2
 
-    val dense = new AffineLayer(_inputSize = inputSize / 4, initWith = INIT_WITH_RANDOM, eta = eta_d)
+    val dense = new AffineLayer(_inputSize = inputSize / 4, initWith = INIT_WITH_RANDOM,
+      opt_b = new SignumBasedMomentum(), opt_w = new SignumBasedMomentum())
+
 
     val ol = new OutputLayer(2, costFunction = CROSS_ENTROPY)
 

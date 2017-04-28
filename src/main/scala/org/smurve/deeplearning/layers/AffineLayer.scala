@@ -2,6 +2,7 @@ package org.smurve.deeplearning.layers
 
 import breeze.linalg.{DenseMatrix, DenseVector}
 import org.smurve.deeplearning._
+import org.smurve.deeplearning.optimizers.Optimizer
 
 /**
   * A fully connected or dense layer
@@ -9,13 +10,14 @@ import org.smurve.deeplearning._
   * @param _inputSize the size of the input vector
   * @param initWith initialization strategy
   * @param initialValue a number to initialize all weights with - typically for diagnostic purposes
-  * @param eta the learning factor
+  * @param opt_w the optimizer for the weights
+  * @param opt_b the optimizer for the bias
   */
 class AffineLayer(name: String = "Some Affine Layer",
                   _inputSize: Int,
                   initWith: InitWith = INIT_WITH_CONST,
                   initialValue: Double = .5,
-                  eta: Double )  extends Layer {
+                  opt_w: Optimizer, opt_b: Optimizer )  extends Layer {
 
   // the weights
   private var w: DM = _
@@ -93,8 +95,11 @@ class AffineLayer(name: String = "Some Affine Layer",
   def update(): Double = {
     assertReady()
 
-    w :-= (avg_nabla_w * eta) / batchCounter
-    b :-= (avg_nabla_b * eta) / batchCounter
+    val step_w = opt_w.nextStep(avg_nabla_w * (1.0 / batchCounter))
+    val step_b = opt_b.nextStep(avg_nabla_b * (1.0 / batchCounter))
+
+    w :-= step_w
+    b :-= step_b
 
     resetBatch()
     nextLayer.get.update()

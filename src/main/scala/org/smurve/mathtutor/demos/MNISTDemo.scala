@@ -1,6 +1,7 @@
 package org.smurve.mathtutor.demos
 
 import org.smurve.deeplearning._
+import org.smurve.deeplearning.optimizers._
 import org.smurve.deeplearning.layers.{AffineLayer, _}
 import org.smurve.mnist._
 import org.smurve.deeplearning
@@ -40,12 +41,15 @@ object MNISTDemo {
   val imgs: MNISTImageFile = new MNISTImageFile("train")
   val lbls: MNISTLabelFile = new MNISTLabelFile("train-labels")
 
-  val input = new AffineLayer("INPUT", IMAGE_SIZE, INIT_WITH_RANDOM, eta = ETA)
-  val hidden1 = new AffineLayer("FIRST HIDDEN", 30, INIT_WITH_RANDOM, eta = ETA)
-  val hidden2 = new AffineLayer("SECOND HIDDEN", 30, INIT_WITH_RANDOM, eta = ETA)
+  val input = new AffineLayer("INPUT", IMAGE_SIZE, INIT_WITH_RANDOM,
+    opt_b = new SignumBasedMomentum(), opt_w = new SignumBasedMomentum() )
+  val hidden1 = new AffineLayer("FIRST HIDDEN", 30, INIT_WITH_RANDOM,
+    opt_b = new SignumBasedMomentum(), opt_w = new SignumBasedMomentum() )
+  val hidden2 = new AffineLayer("SECOND HIDDEN", 30, INIT_WITH_RANDOM,
+    opt_b = new SignumBasedMomentum(), opt_w = new SignumBasedMomentum() )
   val output = new deeplearning.layers.OutputLayer(10, CROSS_ENTROPY)
 
-  private val NN = input º SIGMOID º hidden1 º SIGMOID º hidden2 º SIGMOID º output
+  private val NN = input || SIGMOID || hidden1 || SIGMOID || hidden2 || SIGMOID || output
 
   def now: Long = System.currentTimeMillis
 

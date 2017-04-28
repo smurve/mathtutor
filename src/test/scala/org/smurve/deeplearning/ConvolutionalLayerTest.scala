@@ -3,6 +3,7 @@ package org.smurve.deeplearning
 import breeze.linalg._
 import org.scalatest.{FlatSpec, ShouldMatchers}
 import org.smurve.deeplearning.layers._
+import org.smurve.deeplearning.optimizers.SignumBasedMomentum
 import org.smurve.deeplearning.utilities.ImageGenerator
 
 class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
@@ -104,7 +105,9 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
 
   "Back propagation" should "be verified by infinitesimal changes" in {
     val cl = new ConvolutionalLayer(lrfSpecs = lrfSpecs, eta = 0.0)
-    val hidden = new AffineLayer(_inputSize = 24, initWith = INIT_WITH_RANDOM, eta = 0)
+    val hidden = new AffineLayer(_inputSize = 24, initWith = INIT_WITH_RANDOM,
+      opt_b = new SignumBasedMomentum(), opt_w = new SignumBasedMomentum() )
+
     val ol = new OutputLayer(2)
     val nn = cl || SCALE(1.0) || hidden || SIGMOID || ol
 
@@ -129,7 +132,9 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
   "A convolutional layer" should "be able to identify hand-crafted features anywhere on the image" in {
 
     val cl = new ConvolutionalLayer(lrfSpecs = lrfSpecs, eta = 0.2)
-    val hidden = new AffineLayer(_inputSize = 24, initWith = INIT_WITH_RANDOM, eta = 0.2)
+    val hidden = new AffineLayer(_inputSize = 24, initWith = INIT_WITH_RANDOM,
+      opt_b = new SignumBasedMomentum(), opt_w = new SignumBasedMomentum() )
+
     val ol = new OutputLayer(2)
     val nn = cl || RELU || hidden || SIGMOID || ol
     for ( _ <- 0 to 1000) {
