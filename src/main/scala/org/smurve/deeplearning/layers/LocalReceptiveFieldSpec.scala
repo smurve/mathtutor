@@ -65,18 +65,30 @@ case class LocalReceptiveFieldSpec(input_cols: Int, input_rows: Int, lrf_cols: I
   def dTF(t: Int, f: Int): Int = dF(f) + dT(t)
 
   /**
-    * the feature-index-dependent part of the domain index function
     * @param f the index of the feature
-    * @return
+    * @return the feature-index-dependent part of the domain index function
     */
   @inline
   private def dF(f: Int): Int = f % lrf_cols + (f / lrf_cols) * input_cols
 
   /**
-    * the target-index-dependent part of the domain index function
     * @param t the index of the target
-    * @return
+    * @return the target-index-dependent part of the domain index function
     */
   @inline
   private def dT(t: Int): Int = (t / fmap_cols) * input_cols + t % fmap_cols
+
+  /**
+    * @param input the input vector
+    * @param t the index of the neuron on the feature map
+    * @return the output value of the t'th neuron
+    */
+  def calcSingle(input: DV, t: Int): Double = {
+    (0 until lrf_size).map(f => {
+      val d = dTF(t, f)
+      w(f) * input(d)
+    }).sum + b
+  }
+
+
 }

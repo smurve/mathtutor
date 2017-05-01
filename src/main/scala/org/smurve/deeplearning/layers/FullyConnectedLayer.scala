@@ -2,12 +2,14 @@ package org.smurve.deeplearning.layers
 
 import breeze.linalg.{DenseMatrix, DenseVector}
 import org.smurve.deeplearning._
+import org.smurve.deeplearning.stats.NNStats
 
 /**
   * A fully connected Layer
   * Note that in my model, the activation function is applied to the input vector
   */
-class FullyConnectedLayer(_inputSize: Int,
+class FullyConnectedLayer( val name: String = "fc",
+                           _inputSize: Int,
                           initWith: InitWith = INIT_WITH_CONST,
                           initialValue: Double = .5,
                           inputActivation: Activation = a_scale(1),
@@ -88,14 +90,14 @@ class FullyConnectedLayer(_inputSize: Int,
   /**
     * update all weights and biases with the average of the most recently finished sample batch
     */
-  def update (): Double = {
+  def update (nNStats: NNStats): NNStats = {
     assertReady()
 
     w :-= avg_nabla_w * ( eta / batchCounter)
     b :-= avg_nabla_b * ( eta / batchCounter)
 
     resetBatch()
-    nextLayer.get.update()
+    nextLayer.get.update(nNStats)
   }
 
 

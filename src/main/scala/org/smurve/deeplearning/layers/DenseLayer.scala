@@ -3,6 +3,7 @@ package org.smurve.deeplearning.layers
 import breeze.linalg.{DenseMatrix, DenseVector}
 import org.smurve.deeplearning._
 import org.smurve.deeplearning.optimizers.Optimizer
+import org.smurve.deeplearning.stats.NNStats
 
 /**
   * A fully connected or dense layer
@@ -13,11 +14,11 @@ import org.smurve.deeplearning.optimizers.Optimizer
   * @param opt_w the optimizer for the weights
   * @param opt_b the optimizer for the bias
   */
-class AffineLayer(name: String = "Some Affine Layer",
-                  _inputSize: Int,
-                  initWith: InitWith = INIT_WITH_CONST,
-                  initialValue: Double = .5,
-                  opt_w: Optimizer, opt_b: Optimizer )  extends Layer {
+class DenseLayer(val name: String = "Some Affine Layer",
+                 _inputSize: Int,
+                 initWith: InitWith = INIT_WITH_CONST,
+                 initialValue: Double = .5,
+                 opt_w: Optimizer, opt_b: Optimizer )  extends Layer {
 
   // the weights
   private var w: DM = _
@@ -92,8 +93,10 @@ class AffineLayer(name: String = "Some Affine Layer",
   /**
     * update all weights and biases with the average of the most recently finished sample batch
     */
-  def update(): Double = {
+  def update( nNStats: NNStats ): NNStats = {
     assertReady()
+
+    val stats = nextLayer.get.update(nNStats)
 
     val step_w = opt_w.nextStep(avg_nabla_w * (1.0 / batchCounter))
     val step_b = opt_b.nextStep(avg_nabla_b * (1.0 / batchCounter))
@@ -102,7 +105,8 @@ class AffineLayer(name: String = "Some Affine Layer",
     b :-= step_b
 
     resetBatch()
-    nextLayer.get.update()
+
+    stats
   }
 
 

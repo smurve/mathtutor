@@ -1,10 +1,10 @@
 package org.smurve.mathtutor.demos
 
-import org.smurve.deeplearning._
+import org.smurve.deeplearning.layers.{DenseLayer, _}
 import org.smurve.deeplearning.optimizers._
-import org.smurve.deeplearning.layers.{AffineLayer, _}
+import org.smurve.deeplearning.stats.NNStats
+import org.smurve.deeplearning.{stats, _}
 import org.smurve.mnist._
-import org.smurve.deeplearning
 
 abstract class ImageFilter {
   val transform: (MNISTImage) => MNISTImage
@@ -33,23 +33,23 @@ object MNISTDemo {
   private val TRANSFORM = shrink2
   private val N_TRAINING = 60000
   private val N_BATCH = 2
-  private val ETA = 0.15
   private val IMAGE_WIDTH = TRANSFORM.width
   private val IMAGE_HEIGHT = IMAGE_WIDTH
   private val IMAGE_SIZE = IMAGE_HEIGHT * IMAGE_WIDTH
+  private val ETA = 0.15
 
   val imgs: MNISTImageFile = new MNISTImageFile("train")
   val lbls: MNISTLabelFile = new MNISTLabelFile("train-labels")
 
-  val input = new AffineLayer("INPUT", IMAGE_SIZE, INIT_WITH_RANDOM,
-    opt_b = new SignumBasedMomentum(), opt_w = new SignumBasedMomentum() )
-  val hidden1 = new AffineLayer("FIRST HIDDEN", 30, INIT_WITH_RANDOM,
-    opt_b = new SignumBasedMomentum(), opt_w = new SignumBasedMomentum() )
-  val hidden2 = new AffineLayer("SECOND HIDDEN", 30, INIT_WITH_RANDOM,
-    opt_b = new SignumBasedMomentum(), opt_w = new SignumBasedMomentum() )
-  val output = new deeplearning.layers.OutputLayer(10, CROSS_ENTROPY)
+  val input = new DenseLayer("INPUT", IMAGE_SIZE, INIT_WITH_RANDOM,
+    opt_b = new SignumBasedMomentum(eta = ETA), opt_w = new SignumBasedMomentum(eta = ETA) )
+  val hidden1 = new DenseLayer("FIRST HIDDEN", 30, INIT_WITH_RANDOM,
+    opt_b = new SignumBasedMomentum(eta = ETA), opt_w = new SignumBasedMomentum(eta = ETA) )
+  val hidden2 = new DenseLayer("SECOND HIDDEN", 30, INIT_WITH_RANDOM,
+    opt_b = new SignumBasedMomentum(eta = ETA), opt_w = new SignumBasedMomentum(eta = ETA) )
+  val output = new stats.OutputLayer(10, CROSS_ENTROPY)
 
-  private val NN = input || SIGMOID || hidden1 || SIGMOID || hidden2 || SIGMOID || output
+  private val NN = input || SIGMOID("s1") || hidden1 || SIGMOID("s2") || hidden2 || SIGMOID("s3") || output
 
   def now: Long = System.currentTimeMillis
 
@@ -79,7 +79,7 @@ object MNISTDemo {
       val lbl = lbls.lblAtPos(n)
       NN.feedForwardAndPropBack(img.dv, lbl)
       if (n % N_BATCH == 0) {
-        val avgCost = NN.update()
+        val avgCost = NN.update(new NNStats)
         println(avgCost)
       }
     }

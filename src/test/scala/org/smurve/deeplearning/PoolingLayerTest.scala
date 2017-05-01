@@ -3,13 +3,14 @@ package org.smurve.deeplearning
 import breeze.linalg.DenseVector
 import org.scalatest.{FlatSpec, ShouldMatchers}
 import org.smurve.deeplearning.layers._
+import org.smurve.deeplearning.stats.OutputLayer
 
 /**
   * Created by wgiersche on 18.04.17.
   */
 class PoolingLayerTest extends FlatSpec with ShouldMatchers {
 
-  val pl = new PoolingLayer(stride = 2, poolWidth = 2, poolHeight = 2, outputWidth = 2, function = MAX_POOLING)
+  val pl = new PoolingLayer("pool", stride = 2, poolWidth = 2, poolHeight = 2, outputWidth = 2, function = MAX_POOLING)
   val ol = new OutputLayer(size = 4)
   private val nn = pl || ol
   val x = DenseVector(

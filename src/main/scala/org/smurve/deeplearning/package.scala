@@ -16,6 +16,16 @@ package object deeplearning {
   val EUCLIDEAN = CostFunction ( euclideanCost, euclideanCostDerivative)
   val CROSS_ENTROPY = CostFunction (crossEntropyCost, crossEntropyCostDerivative)
 
+  /**
+    * cross entropy with a tolerance range around 0 and 1
+    * 0.05 appears to be doing a good job with sigmoid activation
+    * @param b
+    * @return
+    */
+  def CROSS_ENTROPY_B(b: Double = 0.05) = CostFunction (crossEntropyCost_b(b), crossEntropyCostDerivative_b(b))
+
+
+
   val a_tau: Activation = Activation ("tau", tau, tau_prime)
 
   // Activation functions and their derivatives
@@ -68,6 +78,26 @@ package object deeplearning {
     * returns exactly 1.0 for inputs x >= 37
     */
   private val ALMOST_ONE = 1-1E-16
+
+  /**
+    * cross-entropy cost function with a buffer.
+    * With activations like e.g. sigmoid(x) the "minimum" would be at x-> \infty,
+    * thus the back prop would eventually run flat on the other side of the activation layer
+    * @param a: the activation with values in the range (0-1)
+    * @param y: the desired vector with values (0,1) and (1,0)
+    * @param b: the buffer value. 0.05 does a good job.
+    * @return the distance from the tolerance range of y
+    */
+  def crossEntropyCost_b(b: Double)(a: DV, y: DV): Double =
+    crossEntropyCost(a, buffer(y, b))
+
+  def crossEntropyCostDerivative_b(b: Double)(a: DV, y: DV) : DV =
+    crossEntropyCostDerivative(a, buffer(y, b) )
+
+  def buffer ( y: DV, b: Double) : DV = y.map(ya=>
+       if ( ya == 1.0 ) 1.0 - b else if ( ya == 0.0 ) b else
+         throw new IllegalArgumentException("Only 0 and 1!"))
+
 
   def crossEntropyCost(a: DV, y: DV): Double = {
     a.toArray.zipWithIndex.foreach(p=>{

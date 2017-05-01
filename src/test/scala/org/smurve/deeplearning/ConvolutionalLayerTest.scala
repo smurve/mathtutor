@@ -4,7 +4,7 @@ import breeze.linalg._
 import org.scalatest.{FlatSpec, ShouldMatchers}
 import org.smurve.deeplearning.layers._
 import org.smurve.deeplearning.optimizers.SignumBasedMomentum
-import org.smurve.deeplearning.utilities.ImageGenerator
+import org.smurve.deeplearning.stats.{NNStats, OutputLayer}
 
 class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
 
@@ -22,14 +22,8 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
   private val weights_up = DenseVector(-1.0, 1, -1, 1, -1, 1)
   private val symbols = Array(Array(0, 2, 6), Array(1, 5, 7))
 
-  private val upImg = DenseVector(0.0,1,0,1.0,0,1)
-  private val downImg = DenseVector(1.0,0,1,0, 1.0,0)
-
   private val lrfSpecs = Array(weights_down, weights_up).map(weights =>
     LocalReceptiveFieldSpec(5, 5, 3, 2, weights = Some(weights), bias = Some(-2.0)))
-
-  private def randSpecs =
-    Array(LocalReceptiveFieldSpec(5,5,3,2),LocalReceptiveFieldSpec(5,5,3,2))
 
 
   "helper function 'image'" should "generate a simple image" in {
@@ -43,9 +37,9 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
   "the down arrow" should "be identified at pos 4 on the first featuremap" in {
 
     val ol = new OutputLayer(24)
-    val cl = new ConvolutionalLayer(lrfSpecs = lrfSpecs, eta = 0.1)
+    val cl = new ConvolutionalLayer("conv", lrfSpecs = lrfSpecs, eta = 0.1)
 
-    val nn = cl || RELU || ol
+    val nn = cl || RELU() || ol
     cl.lrfSpecs.foreach(s => println(s.w))
     val res = nn.feedForward(image(1, 1, DOWN))
     println(res)
@@ -55,9 +49,9 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
 
   "the up arrow" should "be identified at pos 8 on the second featuremap (offset 12)" in {
 
-    val cl = new ConvolutionalLayer(lrfSpecs = lrfSpecs, eta = 0.1)
+    val cl = new ConvolutionalLayer("conv", lrfSpecs = lrfSpecs, eta = 0.1)
     val ol = new OutputLayer(24)
-    val nn = cl || RELU || ol
+    val nn = cl || RELU() || ol
     //cl.lrfSpecs.foreach(s => println(s.w))
     val res = nn.feedForward(image(2, 2, UP))
     //println(res)
@@ -66,9 +60,9 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
   }
 
   "m_of_t" should "determine the feature map the output with index t is produced with" in {
-    val cl = new ConvolutionalLayer(lrfSpecs = lrfSpecs, eta = 0.1)
+    val cl = new ConvolutionalLayer("conv", lrfSpecs = lrfSpecs, eta = 0.1)
     val ol = new OutputLayer(24)
-    val nn = cl || RELU || ol
+    val nn = cl || RELU() || ol
     val layer = nn.entry.asInstanceOf[ConvolutionalLayer]
     layer.m_of_t(0) should be (0)
     layer.m_of_t(11) should be (0)
@@ -91,9 +85,9 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
   }
 
   "the upper-left input" should "have a well-defined contribution to the loss function" in {
-    val cl = new ConvolutionalLayer(lrfSpecs = lrfSpecs, eta = 0.1)
+    val cl = new ConvolutionalLayer("conv", lrfSpecs = lrfSpecs, eta = 0.1)
     val ol = new OutputLayer(24)
-    val nn = cl º RELU º ol
+    val nn = cl º RELU() º ol
 
     // we're making up a delta that would have arrived from the output layer. This allows us to verify the indexes
     val delta = DenseVector.tabulate(24)(_+1.0)
@@ -104,23 +98,23 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
 
 
   "Back propagation" should "be verified by infinitesimal changes" in {
-    val cl = new ConvolutionalLayer(lrfSpecs = lrfSpecs, eta = 0.0)
-    val hidden = new AffineLayer(_inputSize = 24, initWith = INIT_WITH_RANDOM,
-      opt_b = new SignumBasedMomentum(), opt_w = new SignumBasedMomentum() )
+    val cl = new ConvolutionalLayer("conv", lrfSpecs = lrfSpecs, eta = 0.0)
+    val hidden = new DenseLayer(_inputSize = 24, initWith = INIT_WITH_RANDOM,
+      opt_b = new SignumBasedMomentum(eta = 0.0), opt_w = new SignumBasedMomentum(eta = 0.0) )
 
     val ol = new OutputLayer(2)
-    val nn = cl || SCALE(1.0) || hidden || SIGMOID || ol
+    val nn = cl || SCALE() || hidden || SIGMOID() || ol
 
     val infd = 1E-5
     val acceptable = 1E-4
     val y = DenseVector(0.0, 1)
     val x = image(1,2,UP)
     val delta = nn.feedForwardAndPropBack(x, y)
-    val c0 = nn.update()
+    val s0 = nn.update().recentCost
     x(11) += infd
     nn.feedForwardAndPropBack(x, y)
-    val c1 = nn.update()
-    val delta2_inf = (c1 - c0) / infd
+    val s1 = nn.update().recentCost
+    val delta2_inf = (s1 - s0) / infd
 
     println(delta)
     println(delta2_inf)
@@ -131,27 +125,31 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
 
   "A convolutional layer" should "be able to identify hand-crafted features anywhere on the image" in {
 
-    val cl = new ConvolutionalLayer(lrfSpecs = lrfSpecs, eta = 0.2)
-    val hidden = new AffineLayer(_inputSize = 24, initWith = INIT_WITH_RANDOM,
-      opt_b = new SignumBasedMomentum(), opt_w = new SignumBasedMomentum() )
+    val conv = new ConvolutionalLayer("conv", lrfSpecs = lrfSpecs, eta = 0.2)
+    val hidden = new DenseLayer(_inputSize = 24, initWith = INIT_WITH_RANDOM,
+      opt_b = new SignumBasedMomentum(eta = .1), opt_w = new SignumBasedMomentum(eta = 0.1) )
 
-    val ol = new OutputLayer(2)
-    val nn = cl || RELU || hidden || SIGMOID || ol
-    for ( _ <- 0 to 1000) {
+    val batch_size = 100
+    val output = new OutputLayer(2)
+    val nn = conv || RELU() || hidden || SIGMOID() || output
+    nn.setStats(new NNStats(NL=3, NS=100))
+    for ( n <- 1 to 10000) {
       val (img, y) = rndImage
       nn.feedForwardAndPropBack(img, y)
-      val currentLoss = nn.update()
-      println(currentLoss)
+      if ( n % batch_size == 0 ) {
+        val stats = nn.update()
+        println(stats.recentCost)
+      }
     }
 
     var success = 0
-    for ( _ <- 0 until 1000 ) {
+    for ( _ <- 1 to 1000 ) {
       val (img, y) = rndImage
       val res = nn.feedForward(img)
       if ( (y(0) - y(1)) * ( res(0) - res(1)) > 0 ) success += 1
     }
     success = success / 10
-    success > 98 should be(true)
+    success should be > 98
     println(s"Success: $success %")
 
     val row0 = hidden.dump._1(0,::)

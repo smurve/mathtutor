@@ -2,6 +2,7 @@ package org.smurve.deeplearning.optimizers
 
 import breeze.linalg.DenseMatrix
 import breeze.numerics.sqrt
+import org.smurve.deeplearning.stats.NNStats
 import org.smurve.deeplearning.{DM, DV}
 
 /**
@@ -50,7 +51,7 @@ class Adam ( alpha: Double = 1E-3, beta1: Double =0.9, beta2: Double = 0.999, ep
     * @param gt: The gradient
     * @return the next delta to update the given weights
     */
-  def nextStep ( gt: DV ) : DV = {
+  def nextStep (gt: DV ) : DV = {
     nextStep ( DenseMatrix(gt)).apply(0,::).t
   }
 }
