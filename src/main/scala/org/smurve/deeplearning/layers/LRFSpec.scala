@@ -14,8 +14,8 @@ import org.smurve.deeplearning.DV
   * @param bias optional bias, will be random if not provided
   * @param learn indicate weather the weights shall be fixed or participate in learning.
   */
-case class LocalReceptiveFieldSpec(input_cols: Int, input_rows: Int, lrf_cols: Int, lrf_rows: Int,
-                                   weights: Option[DV] = None, bias: Option[Double] = None, learn: Boolean = true ) {
+case class LRFSpec(input_cols: Int, input_rows: Int, lrf_cols: Int, lrf_rows: Int,
+                   weights: Option[DV] = None, bias: Option[Double] = None, learn: Boolean = true ) {
 
   val input_size: Int = input_rows * input_cols
   val fmap_cols: Int = input_cols - lrf_cols + 1
@@ -70,7 +70,10 @@ case class LocalReceptiveFieldSpec(input_cols: Int, input_rows: Int, lrf_cols: I
     * @return
     */
   @inline
-  private def dF(f: Int): Int = f % lrf_cols + (f / lrf_cols) * input_cols
+  private def dF(f: Int): Int = {
+    assert(f >= 0 && f < lrf_size, s"f should be between 0 and $lrf_size")
+    f % lrf_cols + (f / lrf_cols) * input_cols
+  }
 
   /**
     * the target-index-dependent part of the domain index function
@@ -78,5 +81,8 @@ case class LocalReceptiveFieldSpec(input_cols: Int, input_rows: Int, lrf_cols: I
     * @return
     */
   @inline
-  private def dT(t: Int): Int = (t / fmap_cols) * input_cols + t % fmap_cols
+  private def dT(t: Int): Int = {
+    assert(t >= 0 && t < input_size, s"f should be between 0 and $input_size")
+    (t / fmap_cols) * input_cols + t % fmap_cols
+  }
 }

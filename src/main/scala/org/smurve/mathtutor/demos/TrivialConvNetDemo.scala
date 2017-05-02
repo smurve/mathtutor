@@ -23,11 +23,11 @@ object TrivialConvNetDemo {
     val imgW = 10 // 12
     val imgH = 9 // 11
     var eta_c = 0.08 // 2
-    var eta_d = 0.08 // 6
+    var eta_d = 1 // 6
 
     val randSpecs = Array(
-      LocalReceptiveFieldSpec(imgW, imgH, 3, 2),
-      LocalReceptiveFieldSpec(imgW, imgH, 3, 2))
+      LRFSpec(imgW, imgH, 3, 2),
+      LRFSpec(imgW, imgH, 3, 2))
 
     val conv = new ConvolutionalLayer(lrfSpecs = randSpecs, eta = eta_c)
     val pooling = new PoolingLayer(outputWidth = 2)
@@ -39,13 +39,13 @@ object TrivialConvNetDemo {
 
     val nn = conv || RELU || pooling || dense || SIGMOID || ol
 
-    val N_t = 100000
+    val N_t = 200000
     val gen = new ImageGenerator(imgW, imgH)
     for (n <- 1 until N_t) {
       val img = gen.rndImage(gen.UP, gen.DOWN)
       val y = if (img.symbol == gen.UP) DenseVector(1.0, 0) else DenseVector(0, 1.0)
       nn.feedForwardAndPropBack(img.asDV, y)
-      if (n % 20 == 0) {
+      if (n % 500 == 0) {
         val currentLoss = nn.update()
         println(currentLoss)
       }

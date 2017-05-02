@@ -2,12 +2,12 @@ package org.smurve.mnist
 
 import breeze.linalg.DenseVector
 import org.smurve.deeplearning._
-import org.smurve.deeplearning.layers.LocalReceptiveFieldSpec
+import org.smurve.deeplearning.layers.LRFSpec
 
 
 /**
   */
-class ConvNetworkLayer(frame: LocalReceptiveFieldSpec,
+class ConvNetworkLayer(spec: LRFSpec,
                        num_features: Int = 1,
                        next: Option[MNISTLayer] = None,
                        costDerivative: Option[(DV, DV) => DV] = None,
@@ -17,7 +17,7 @@ class ConvNetworkLayer(frame: LocalReceptiveFieldSpec,
   def featureMaps: List[String] = List("Finished")
 
 
-  private var w = Array.fill(num_features)(DenseVector.rand[Double](frame.lrf_size))
+  private var w = Array.fill(num_features)(DenseVector.rand[Double](spec.lrf_size))
 
 
   private var sum_nabla_w: Array[DV] = zeroes
@@ -38,12 +38,12 @@ class ConvNetworkLayer(frame: LocalReceptiveFieldSpec,
 
   def setFeatures(weights: Array[DV]): Unit = {
     assert(weights.length == num_features)
-    assert(weights(0).length == frame.lrf_size)
+    assert(weights(0).length == spec.lrf_size)
     w = weights
   }
 
   private def zeroes: Array[DV] =
-    Array.fill(num_features)(DenseVector.zeros[Double](frame.lrf_size))
+    Array.fill(num_features)(DenseVector.zeros[Double](spec.lrf_size))
 
 
   /**
@@ -67,9 +67,9 @@ class ConvNetworkLayer(frame: LocalReceptiveFieldSpec,
     * @return the resulting feature map
     */
   def convolute(f: Int, input: DV): Array[Double] = {
-    (0 until frame.fmap_size).map(k => {
-      (0 until frame.lrf_size).map(j => {
-        w(f)(j) * input(frame.dTF(k, j))
+    (0 until spec.fmap_size).map(k => {
+      (0 until spec.lrf_size).map(j => {
+        w(f)(j) * input(spec.dTF(k, j))
       }).sum
     }).toArray
   }
@@ -105,12 +105,12 @@ class ConvNetworkLayer(frame: LocalReceptiveFieldSpec,
 
     val dC_dw = (0 until num_features).map(
       n => { // for each feature map
-        val delta: Array[Double] = (0 until frame.lrf_size).map(
+        val delta: Array[Double] = (0 until spec.lrf_size).map(
           j => // fix the index of the weight
-            (0 until frame.fmap_size).map(
+            (0 until spec.fmap_size).map(
               k => { // sum up all components of x that contribute to w_j
-                val kn = k + n * frame.fmap_size
-                delta_l(kn) * x(frame.dTF(k, j))
+                val kn = k + n * spec.fmap_size
+                delta_l(kn) * x(spec.dTF(k, j))
               }).sum).toArray
 
         DenseVector(delta)

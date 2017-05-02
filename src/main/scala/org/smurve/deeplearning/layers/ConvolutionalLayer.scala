@@ -12,7 +12,7 @@ import org.smurve.deeplearning._
   * @param lrfSpecs array of LRF specifications
   * @param eta the learning factor for this layer
   */
-class ConvolutionalLayer(val lrfSpecs: Array[LocalReceptiveFieldSpec], val eta: Double)
+class ConvolutionalLayer(val lrfSpecs: Array[LRFSpec], val eta: Double)
 
   extends Layer {
 
@@ -84,7 +84,7 @@ class ConvolutionalLayer(val lrfSpecs: Array[LocalReceptiveFieldSpec], val eta: 
     * @param input this layer's input vector
     * @return the resulting feature map
     */
-  def calcFMap(spec: LocalReceptiveFieldSpec, input: DV): Array[Double] = {
+  def calcFMap(spec: LRFSpec, input: DV): Array[Double] = {
     (0 until spec.fmap_size).map(k => {
       (0 until spec.lrf_size).map(j => {
         val d = spec.dTF(k, j)
