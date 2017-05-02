@@ -1,5 +1,6 @@
 package org.smurve.deeplearning.optimizers
 
+import org.smurve.deeplearning.stats.NNStats
 import org.smurve.deeplearning.{DM, DV}
 
 /**

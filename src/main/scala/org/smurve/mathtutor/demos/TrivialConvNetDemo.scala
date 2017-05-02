@@ -4,7 +4,7 @@ import breeze.linalg.DenseVector
 import org.smurve.deeplearning._
 import org.smurve.deeplearning.layers._
 import org.smurve.deeplearning.optimizers.SignumBasedMomentum
-import org.smurve.deeplearning.stats.OutputLayer
+import org.smurve.deeplearning.stats.{NNStats, OutputLayer}
 import org.smurve.deeplearning.utilities.ImageGenerator
 
 /**
@@ -38,19 +38,20 @@ object TrivialConvNetDemo {
     val dense = new DenseLayer(_inputSize = inputSize / 4, initWith = INIT_WITH_RANDOM,
       opt_b = new SignumBasedMomentum(eta=eta_d), opt_w = new SignumBasedMomentum(eta = eta_d))
 
-    val ol = new OutputLayer(2, costFunction = CROSS_ENTROPY)
+    val ol = new OutputLayer(2, costFunction = CROSS_ENTROPY_B())
 
     val nn = conv || TAU() || pooling || dense || SIGMOID() || ol
 
     val N_t = 200000
     val gen = new ImageGenerator(imgW, imgH)
+    nn.setStats(new NNStats(NL=3, NS=100))
     for (n <- 1 until N_t) {
       val img = gen.rndImage(gen.UP, gen.DOWN)
       val y = if (img.symbol == gen.UP) DenseVector(1.0, 0) else DenseVector(0, 1.0)
       nn.feedForwardAndPropBack(img.asDV, y)
-      if (n % 500 == 0) {
-        val currentLoss = nn.update()
-        println(currentLoss)
+      if (n % 1000 == 0) {
+        val stats = nn.update()
+        println(stats.recentCost)
       }
       if ( n % 20000 == 0 ) {
         eta_c /= 2

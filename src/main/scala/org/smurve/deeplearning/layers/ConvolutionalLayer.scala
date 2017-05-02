@@ -86,14 +86,8 @@ class ConvolutionalLayer(val name: String, val lrfSpecs: Array[LRFSpec], val eta
     * @param input this layer's input vector
     * @return the resulting feature map
     */
-  def calcFMap(spec: LRFSpec, input: DV): Array[Double] = {
-    (0 until spec.fmap_size).map(k => {
-      (0 until spec.lrf_size).map(j => {
-        val d = spec.dTF(k, j)
-        spec.w(j) * input(d)
-      }).sum + spec.b
-    }).toArray
-  }
+  def calcFMap(spec: LRFSpec, input: DV): Array[Double] =
+    (0 until spec.fmap_size).map(spec.calcSingle(input, _)).toArray
 
   /**
     * Determine the feature map that belongs to the given target space index.
@@ -131,6 +125,7 @@ class ConvolutionalLayer(val name: String, val lrfSpecs: Array[LRFSpec], val eta
 
     DenseVector.tabulate(inputSize)(d => dC_dx_d(delta, d))
   }
+
 
   def dC_dwmf(x: DV, delta: DV, f: Int, m: Int): Double = {
     (0 until lrfSpecs(m).fmap_size).map(t =>

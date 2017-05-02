@@ -65,9 +65,8 @@ case class LRFSpec(input_cols: Int, input_rows: Int, lrf_cols: Int, lrf_rows: In
   def dTF(t: Int, f: Int): Int = dF(f) + dT(t)
 
   /**
-    * the feature-index-dependent part of the domain index function
     * @param f the index of the feature
-    * @return
+    * @return the feature-index-dependent part of the domain index function
     */
   @inline
   private def dF(f: Int): Int = {
@@ -76,13 +75,26 @@ case class LRFSpec(input_cols: Int, input_rows: Int, lrf_cols: Int, lrf_rows: In
   }
 
   /**
-    * the target-index-dependent part of the domain index function
     * @param t the index of the target
-    * @return
+    * @return the target-index-dependent part of the domain index function
     */
   @inline
   private def dT(t: Int): Int = {
     assert(t >= 0 && t < input_size, s"f should be between 0 and $input_size")
     (t / fmap_cols) * input_cols + t % fmap_cols
   }
+
+  /**
+    * @param input the input vector
+    * @param t the index of the neuron on the feature map
+    * @return the output value of the t'th neuron
+    */
+  def calcSingle(input: DV, t: Int): Double = {
+    (0 until lrf_size).map(f => {
+      val d = dTF(t, f)
+      w(f) * input(d)
+    }).sum + b
+  }
+
+
 }

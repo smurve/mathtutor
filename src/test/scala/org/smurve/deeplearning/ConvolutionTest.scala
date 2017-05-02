@@ -15,7 +15,6 @@ class ConvolutionTest extends FlatSpec with ShouldMatchers {
     frame.fmap_size should be((28 - 4 + 1) * (28 - 3 + 1))
   }
 
-
   "An LRF spec's dTF function" should
     "calculate the domain index from the feature map (f) and target (t) index correctly" in {
 

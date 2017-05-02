@@ -1,8 +1,9 @@
 package org.smurve.mathtutor.demos
 
-import org.smurve.deeplearning._
 import org.smurve.deeplearning.layers.{DenseLayer, _}
 import org.smurve.deeplearning.optimizers.SignumBasedMomentum
+import org.smurve.deeplearning.stats.NNStats
+import org.smurve.deeplearning.{stats, _}
 import org.smurve.mnist._
 
 abstract class ImageFilter {
@@ -32,10 +33,10 @@ object MNISTDemo {
   private val TRANSFORM = shrink2
   private val N_TRAINING = 60000
   private val N_BATCH = 2
-  private val ETA = 0.15
   private val IMAGE_WIDTH = TRANSFORM.width
   private val IMAGE_HEIGHT = IMAGE_WIDTH
   private val IMAGE_SIZE = IMAGE_HEIGHT * IMAGE_WIDTH
+  private val ETA = 0.15
 
   val imgs: MNISTImageFile = new MNISTImageFile("train")
   val lbls: MNISTLabelFile = new MNISTLabelFile("train-labels")
@@ -78,7 +79,7 @@ object MNISTDemo {
       val lbl = lbls.lblAtPos(n)
       NN.feedForwardAndPropBack(img.dv, lbl)
       if (n % N_BATCH == 0) {
-        val avgCost = NN.update()
+        val avgCost = NN.update(new NNStats)
         println(avgCost)
       }
     }
