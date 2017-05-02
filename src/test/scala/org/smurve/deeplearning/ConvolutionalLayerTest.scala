@@ -23,7 +23,7 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
   private val symbols = Array(Array(0, 2, 6), Array(1, 5, 7))
 
   private val lrfSpecs = Array(weights_down, weights_up).map(weights =>
-    LocalReceptiveFieldSpec(5, 5, 3, 2, weights = Some(weights), bias = Some(-2.0)))
+    LRFSpec(5, 5, 3, 2, weights = Some(weights), bias = Some(-2.0)))
 
 
   "helper function 'image'" should "generate a simple image" in {

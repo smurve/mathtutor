@@ -14,8 +14,8 @@ import org.smurve.deeplearning.DV
   * @param bias optional bias, will be random if not provided
   * @param learn indicate weather the weights shall be fixed or participate in learning.
   */
-case class LocalReceptiveFieldSpec(input_cols: Int, input_rows: Int, lrf_cols: Int, lrf_rows: Int,
-                                   weights: Option[DV] = None, bias: Option[Double] = None, learn: Boolean = true ) {
+case class LRFSpec(input_cols: Int, input_rows: Int, lrf_cols: Int, lrf_rows: Int,
+                   weights: Option[DV] = None, bias: Option[Double] = None, learn: Boolean = true ) {
 
   val input_size: Int = input_rows * input_cols
   val fmap_cols: Int = input_cols - lrf_cols + 1

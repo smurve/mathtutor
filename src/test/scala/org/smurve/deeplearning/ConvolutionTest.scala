@@ -2,7 +2,7 @@ package org.smurve.deeplearning
 
 import breeze.linalg.{DenseVector, max, min}
 import org.scalatest.{FlatSpec, ShouldMatchers}
-import org.smurve.deeplearning.layers.LocalReceptiveFieldSpec
+import org.smurve.deeplearning.layers.LRFSpec
 import org.smurve.mnist.{ConvNetworkLayer, MNISTImage}
 
 /**
@@ -11,12 +11,12 @@ import org.smurve.mnist.{ConvNetworkLayer, MNISTImage}
 class ConvolutionTest extends FlatSpec with ShouldMatchers {
 
   "An LRF spec" should "calculate output sizes correctly" in {
-    val frame = LocalReceptiveFieldSpec(input_cols = 28, input_rows = 28, lrf_cols = 4, lrf_rows = 3)
+    val frame = LRFSpec(input_cols = 28, input_rows = 28, lrf_cols = 4, lrf_rows = 3)
     frame.fmap_size should be((28 - 4 + 1) * (28 - 3 + 1))
   }
 
   "An LRF spec" should "calculate the domain index from the feature map index correctly" in {
-    val frame = LocalReceptiveFieldSpec(input_cols = 28, input_rows = 28, lrf_cols = 4, lrf_rows = 3)
+    val frame = LRFSpec(input_cols = 28, input_rows = 28, lrf_cols = 4, lrf_rows = 3)
     frame.dTF(27, 0) should be(28 + 2)
   }
 
@@ -28,7 +28,7 @@ class ConvolutionTest extends FlatSpec with ShouldMatchers {
       16, 17, 18, 19, 20,
       21, 22, 23, 24, 25)
 
-    val frame = LocalReceptiveFieldSpec(5, 5, 3, 2)
+    val frame = LRFSpec(5, 5, 3, 2)
 
     val layer = new ConvNetworkLayer(frame = frame, num_features = 1, activation = a_sigmoid, costDerivative = None)
 
@@ -51,7 +51,7 @@ class ConvolutionTest extends FlatSpec with ShouldMatchers {
       1.0, 0, 1, 0, 1, 1, 1, 0
     )
 
-    val frame = LocalReceptiveFieldSpec(8, 8, 3, 3)
+    val frame = LRFSpec(8, 8, 3, 3)
 
     val layer = new ConvNetworkLayer(frame = frame, num_features = 2, activation = a_sigmoid, costDerivative = None)
 

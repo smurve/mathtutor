@@ -2,12 +2,12 @@ package org.smurve.mnist
 
 import breeze.linalg.DenseVector
 import org.smurve.deeplearning._
-import org.smurve.deeplearning.layers.LocalReceptiveFieldSpec
+import org.smurve.deeplearning.layers.LRFSpec
 
 
 /**
   */
-class ConvNetworkLayer(frame: LocalReceptiveFieldSpec,
+class ConvNetworkLayer(frame: LRFSpec,
                        num_features: Int = 1,
                        next: Option[MNISTLayer] = None,
                        costDerivative: Option[(DV, DV) => DV] = None,

@@ -28,8 +28,8 @@ object TrivialConvNetDemo {
     var eta_d = 0.08 // 6
 
     val randSpecs = Array(
-      LocalReceptiveFieldSpec(imgW, imgH, 3, 2),
-      LocalReceptiveFieldSpec(imgW, imgH, 3, 2))
+      LRFSpec(imgW, imgH, 3, 2),
+      LRFSpec(imgW, imgH, 3, 2))
 
     val conv = new ConvolutionalLayer(name="conv", lrfSpecs = randSpecs, eta = eta_c)
     val pooling = new PoolingLayer(name="pool", outputWidth = 2)
