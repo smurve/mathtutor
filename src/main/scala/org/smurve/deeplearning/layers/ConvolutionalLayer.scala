@@ -2,6 +2,7 @@ package org.smurve.deeplearning.layers
 
 import breeze.linalg.{DenseVector, sum}
 import org.smurve.deeplearning._
+import org.smurve.deeplearning.stats.NNStats
 
 /**
   * A convolutional layer
@@ -9,10 +10,11 @@ import org.smurve.deeplearning._
   * in the constructor argument as an array of LocalReceptiveFieldSpecs. The output comprises of a vector containing
   * the feature maps in the same order that their LRFs are specified in the constructor.
   *
+  * @param name a human-readable name for diagnostics purposes
   * @param lrfSpecs array of LRF specifications
   * @param eta the learning factor for this layer
   */
-class ConvolutionalLayer(val lrfSpecs: Array[LRFSpec], val eta: Double)
+class ConvolutionalLayer(val name: String, val lrfSpecs: Array[LRFSpec], val eta: Double)
 
   extends Layer {
 
@@ -42,7 +44,7 @@ class ConvolutionalLayer(val lrfSpecs: Array[LRFSpec], val eta: Double)
     * update the weights from the average corrections collected in previous learnings
     *
     */
-  override def update(): Double = {
+  override def update(nNStats: NNStats ): NNStats = {
 
     lrfSpecs.zipWithIndex.foreach(spec_and_index => {
       val spec = spec_and_index._1
@@ -53,7 +55,7 @@ class ConvolutionalLayer(val lrfSpecs: Array[LRFSpec], val eta: Double)
     })
 
     resetBatch()
-    nextLayer.get.update()
+    nextLayer.get.update(nNStats)
   }
 
 

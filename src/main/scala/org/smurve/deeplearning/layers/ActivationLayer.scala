@@ -1,11 +1,12 @@
 package org.smurve.deeplearning.layers
 
 import org.smurve.deeplearning._
+import org.smurve.deeplearning.stats.NNStats
 
 /**
   * A mere activation layer. Applies the activation function to the each component of the input vector
   */
-class ActivationLayer(activation: Activation = a_scale(1)) extends Layer {
+class ActivationLayer(val name: String, activation: Activation = a_scale(1)) extends Layer {
 
   override def inputSize: Int = nextLayer.map(_.inputSize)
     .getOrElse(throw new IllegalStateException("not initialized yet."))
@@ -34,8 +35,8 @@ class ActivationLayer(activation: Activation = a_scale(1)) extends Layer {
   /**
     * no parameters to update here, just delegate downstream
     */
-  def update(): Double = {
-    nextLayer.get.update()
+  def update(nNStats: NNStats): NNStats = {
+    nextLayer.get.update(nNStats)
   }
 
   /**

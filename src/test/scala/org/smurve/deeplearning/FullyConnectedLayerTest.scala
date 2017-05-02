@@ -3,6 +3,7 @@ package org.smurve.deeplearning
 import breeze.linalg.{DenseVector, sum}
 import org.scalatest.{FlatSpec, ShouldMatchers}
 import org.smurve.deeplearning.layers._
+import org.smurve.deeplearning.stats.OutputLayer
 
 /**
   */
@@ -38,7 +39,7 @@ class FullyConnectedLayerTest extends FlatSpec with ShouldMatchers {
     val out = new OutputLayer( size = 2, EUCLIDEAN )
 
     // stack'em: Only now the weights are initialized
-    val nn = input º hidden1 º hidden2 º SIGMOID º out
+    val nn = input º hidden1 º hidden2 º SIGMOID() º out
 
     // train with 1000 randomly created samples
     for ( _ <- 0 to 1000 ) {

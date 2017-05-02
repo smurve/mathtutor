@@ -73,7 +73,7 @@ class ConvolutionTest extends FlatSpec with ShouldMatchers {
 
     val anyEta = .1 // not used
 
-    val layer = new ConvolutionalLayer(Array(spec), anyEta)
+    val layer = new ConvolutionalLayer(name="conv", Array(spec), anyEta)
 
     val features = layer.calcFMap(spec, input)
 
@@ -123,7 +123,7 @@ class ConvolutionTest extends FlatSpec with ShouldMatchers {
       bias = Some(0.0))
 
 
-    val layer = new ConvolutionalLayer(lrfSpecs = Array(house, cross), anyEta)
+    val layer = new ConvolutionalLayer(name="conv", lrfSpecs = Array(house, cross), anyEta)
     def imageFrom(spec: LRFSpec) = MNISTImage(toByteArray(DenseVector(layer.calcFMap(spec, input))), 6, 6)
 
     val res_house = imageFrom(house)

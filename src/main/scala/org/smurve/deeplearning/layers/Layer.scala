@@ -1,5 +1,6 @@
 package org.smurve.deeplearning.layers
 
+import org.smurve.deeplearning.stats.{NNStats, OutputLayer}
 import org.smurve.deeplearning.{DV, NeuralNetwork}
 
 abstract class Layer()  {
@@ -11,10 +12,16 @@ abstract class Layer()  {
   def inputSize : Int
 
   /**
+    * a readable name for diagnostic purposes
+    * @return
+    */
+  def name: String
+
+  /**
     * update the weights from the average corrections collected in previous learnings
     * @return the recent average loss
     */
-  def update (): Double
+  def update (nnstats: NNStats): NNStats
 
   /**
     * just the forward feed, returns the final activations as a result
@@ -32,12 +39,13 @@ abstract class Layer()  {
   def feedForwardAndPropBack(x: DV, y: DV): DV
 
   /**
-    * Alternative to the "*" stacking operator.
-    * In case you prefer the typical math apply symbol "º" (Alt-j on a Mac) to the multiplication symbol "*".
+    * Alternative to the "||" stacking operator,
+    * in case you prefer the typical math 'apply' symbol "º" (Alt-j on a Mac).
     * @param next the inner layer
     * @return
     */
   def º ( next: Layer ): Layer = this || next
+  def º ( next: OutputLayer ): NeuralNetwork = this || next
 
   /**
     * Layer stacking operator.
@@ -59,6 +67,18 @@ abstract class Layer()  {
     }
   }
 
+  def || (output: OutputLayer ): NeuralNetwork = {
+
+    val thisExit = this.exit
+    val nextEntry = output.entry
+    thisExit.nextLayer = Some(nextEntry)
+    nextEntry.previousLayer = Some(thisExit)
+
+    output.initialize()
+    new NeuralNetwork(this.entry, output)
+  }
+
+
   private[deeplearning] var previousLayer: Option[Layer] = None
   private[deeplearning] var nextLayer: Option[Layer] = None
 
@@ -77,5 +97,5 @@ abstract class Layer()  {
   /**
     * initialize weights, will be called by the subsequent layer. Should continue until the input layer
     */
-  private [layers] def initialize () : Unit
+  private [deeplearning] def initialize () : Unit
 }

@@ -1,11 +1,12 @@
 package org.smurve.deeplearning.layers
 import breeze.linalg.DenseVector
 import org.smurve.deeplearning.DV
+import org.smurve.deeplearning.stats.NNStats
 
 /**
   * Created by wgiersche on 18.04.17.
   */
-class PoolingLayer ( val stride: Int = 2, val poolWidth: Int = 2, val poolHeight: Int = 2, val outputWidth: Int,
+class PoolingLayer ( val name: String, val stride: Int = 2, val poolWidth: Int = 2, val poolHeight: Int = 2, val outputWidth: Int,
                      val function: PoolingFunction = MAX_POOLING ) extends Layer {
 
   private var _inputSize: Int = _
@@ -18,11 +19,10 @@ class PoolingLayer ( val stride: Int = 2, val poolWidth: Int = 2, val poolHeight
   override def inputSize: Int = _inputSize
 
   /**
-    * update the weights from the average corrections collected in previous learnings
-    *
-    * @return the recent average loss
+    * just forward to the next layer
+    * @return the next layers stats
     */
-override def update(): Double = nextLayer.get.update()
+  override def update(nNStats: NNStats): NNStats = nextLayer.get.update(nNStats)
 
   /**
     * just the forward feed, returns the final activations as a result
@@ -69,7 +69,7 @@ override def update(): Double = nextLayer.get.update()
   /**
     * initialize weights, will be called by the subsequent layer. Should continue until the input layer
     */
-  override private[layers] def initialize() = {
+  override private[deeplearning] def initialize() = {
     _inputSize = poolHeight * poolWidth * nextLayer.get.inputSize
     previousLayer.foreach(_.initialize())
   }

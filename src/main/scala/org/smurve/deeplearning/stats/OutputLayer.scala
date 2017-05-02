@@ -1,6 +1,7 @@
-package org.smurve.deeplearning.layers
+package org.smurve.deeplearning.stats
 
 import org.smurve.deeplearning._
+import org.smurve.deeplearning.layers.Layer
 
 /**
   * Output Layer
@@ -9,18 +10,21 @@ import org.smurve.deeplearning._
 class OutputLayer(size: Int, costFunction: CostFunction = EUCLIDEAN) extends Layer {
 
   var recentLoss: Double = _
+  val name = "Output"
   private var batchCost = 0.0
   private var avgCostByTime = List[Double]()
   private var batchCounter = 0
+  private var outputLayerStats = new OutputLayerStats()
 
   /**
     * update the statistics per batch
     */
-  override def update(): Double = {
-    avgCostByTime = batchCost / batchCounter :: avgCostByTime
+  override def update( nNStats: NNStats): NNStats = {
+    outputLayerStats.registerCost (batchCost / batchCounter)
     batchCounter = 0
     batchCost = 0
-    avgCostByTime.head
+    nNStats.registerStats(outputLayerStats)
+    nNStats
   }
 
   /**
