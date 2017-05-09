@@ -71,13 +71,5 @@ class SignumBasedMomentum(acc: Double = 1.2, dec: Double =0.3, maxMomentum: Doub
     if ( cs == 0 ) 0.0 else if ( ps == 0) 0.0 else (1-ps*cs)/2
   }
 
-  /**
-    * Convenience wrapper for DenseVectors
-    * @param gt: The gradient
-    * @return the next delta to update the given weights
-    */
-  def nextStep ( gt: DV ) : DV = {
-    nextStep ( DenseMatrix(gt)).apply(0,::).t
-  }
 }
 

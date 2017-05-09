@@ -14,7 +14,7 @@ import org.smurve.deeplearning.stats.NNStats
   * @param opt_w the optimizer for the weights
   * @param opt_b the optimizer for the bias
   */
-class DenseLayer(val name: String = "Some Affine Layer",
+class DenseLayer(val name: String = "Some Dense Layer",
                  _inputSize: Int,
                  initWith: InitWith = INIT_WITH_CONST,
                  initialValue: Double = .5,

@@ -2,15 +2,17 @@ name := "mathtutor"
 
 version := "1.0"
 
+isSnapshot := true
+
 scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq("org.specs2" %% "specs2-core" % "3.8.8" % "test")
 
 libraryDependencies  ++= Seq(
   // other dependencies here
-  "org.apache.spark" %% "spark-mllib" % "2.1.0",
+  "org.apache.spark" %% "spark-mllib" % "2.1.0" % "provided",
   //"jcommon" % "jcommon" % "1.0.16",
-  "org.jfree" % "jfreechart-swt" % "1.0"
+  "org.jfree" % "jfreechart-swt" % "1.0" % "provided"
 
 
   // Check comments on ParallelTest for a discussion on the effects of this library

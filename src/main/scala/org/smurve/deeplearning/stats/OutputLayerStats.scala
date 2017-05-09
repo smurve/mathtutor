@@ -4,7 +4,7 @@ class OutputLayerStats () extends LayerStats {
 
   val name: String = "Output"
 
-  private var avgCostByTime: List[Double] = List[Double]()
+  var avgCostByTime: List[Double] = List[Double]()
 
   def registerCost ( cost: Double ): Unit =
     avgCostByTime = cost :: avgCostByTime

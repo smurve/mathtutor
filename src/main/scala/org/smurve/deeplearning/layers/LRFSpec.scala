@@ -12,10 +12,9 @@ import org.smurve.deeplearning.DV
   * @param lrf_rows   number of rows of the local receptive field
   * @param weights optional weights, will be random if not provided
   * @param bias optional bias, will be random if not provided
-  * @param learn indicate weather the weights shall be fixed or participate in learning.
   */
 case class LRFSpec(input_cols: Int, input_rows: Int, lrf_cols: Int, lrf_rows: Int,
-                   weights: Option[DV] = None, bias: Option[Double] = None, learn: Boolean = true ) {
+                   weights: Option[DV] = None, bias: Option[Double] = None) {
 
   val input_size: Int = input_rows * input_cols
   val fmap_cols: Int = input_cols - lrf_cols + 1
@@ -24,6 +23,8 @@ case class LRFSpec(input_cols: Int, input_rows: Int, lrf_cols: Int, lrf_rows: In
   val lrf_size: Int = lrf_rows * lrf_cols
   var w: DV = weights.getOrElse(rndDV(lrf_size))
   var b: Double = bias.getOrElse(math.random-0.5)
+
+  val learn: Boolean = weights.isEmpty || bias.isEmpty
 
   private def rndDV ( size: Int ) = DenseVector.rand[Double](size) - DenseVector.fill( size ) {.5}
 

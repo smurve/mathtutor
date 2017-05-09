@@ -1,5 +1,6 @@
 package org.smurve.deeplearning.optimizers
 
+import breeze.linalg.DenseMatrix
 import org.smurve.deeplearning.stats.NNStats
 import org.smurve.deeplearning.{DM, DV}
 
@@ -10,5 +11,12 @@ trait Optimizer {
 
   def nextStep ( gt: DM ) : DM
 
-  def nextStep ( gt: DV ) : DV
+  /**
+    * Convenience wrapper for DenseVectors
+    * @param gt: The gradient
+    * @return the next delta to update the given weights
+    */
+  def nextStep ( gt: DV ) : DV = {
+    nextStep ( DenseMatrix(gt)).apply(0,::).t
+  }
 }

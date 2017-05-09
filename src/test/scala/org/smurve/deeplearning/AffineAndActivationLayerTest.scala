@@ -3,7 +3,7 @@ package org.smurve.deeplearning
 import breeze.linalg.{DenseVector, sum}
 import org.scalatest.{FlatSpec, ShouldMatchers}
 import org.smurve.deeplearning.layers._
-import org.smurve.deeplearning.optimizers.SignumBasedMomentum
+import org.smurve.deeplearning.optimizers.{ConstantOptimizer, SignumBasedMomentum}
 import org.smurve.deeplearning.stats.{NNStats, OutputLayer}
 
 /**
@@ -15,11 +15,11 @@ class AffineAndActivationLayerTest extends FlatSpec with ShouldMatchers {
 
     val ETA = 1.0
     val input = new DenseLayer ( "INPUT", _inputSize = 4, initialValue = 1.0,
-      opt_b = new SignumBasedMomentum(eta = ETA), opt_w = new SignumBasedMomentum(eta = ETA) )
+      opt_b = new ConstantOptimizer(eta = ETA), opt_w = new ConstantOptimizer(eta = ETA) )
     val hidden1 = new DenseLayer ( "HIDDEN 1", _inputSize = 3, initialValue = 1.0,
-      opt_b = new SignumBasedMomentum(eta = ETA), opt_w = new SignumBasedMomentum(eta = ETA) )
+      opt_b = new ConstantOptimizer(eta = ETA), opt_w = new ConstantOptimizer(eta = ETA) )
     val hidden2 = new DenseLayer ( "HIDDEN 2", _inputSize = 2, initialValue = 1.0,
-      opt_b = new SignumBasedMomentum(eta = ETA), opt_w = new SignumBasedMomentum(eta = ETA) )
+      opt_b = new ConstantOptimizer(eta = ETA), opt_w = new ConstantOptimizer(eta = ETA) )
     val out = new OutputLayer( size = 2, EUCLIDEAN )
 
     // stack'em: Only now the weights are initialized
@@ -40,17 +40,16 @@ class AffineAndActivationLayerTest extends FlatSpec with ShouldMatchers {
     val ETA = 1.0
     // We're using two hidden layers just to make it a bit more complex. A single layer would do.
     val input = new DenseLayer ( _inputSize = 4, initWith = INIT_WITH_RANDOM,
-      opt_b = new SignumBasedMomentum(eta = ETA), opt_w = new SignumBasedMomentum(eta = ETA) )
+      opt_b = new ConstantOptimizer(eta = ETA), opt_w = new ConstantOptimizer(eta = ETA) )
     val hidden1 = new DenseLayer ( _inputSize = 3, initWith = INIT_WITH_RANDOM,
-      opt_b = new SignumBasedMomentum(eta = ETA), opt_w = new SignumBasedMomentum(eta = ETA) )
+      opt_b = new ConstantOptimizer(eta = ETA), opt_w = new ConstantOptimizer(eta = ETA) )
     val hidden2 = new DenseLayer ( _inputSize = 2, initWith = INIT_WITH_RANDOM,
-      opt_b = new SignumBasedMomentum(eta = ETA), opt_w = new SignumBasedMomentum(eta = ETA) )
+      opt_b = new ConstantOptimizer(eta = ETA), opt_w = new ConstantOptimizer(eta = ETA) )
     val out = new OutputLayer( size = 2, EUCLIDEAN )
 
     // stack'em: Only now the weights are initialized
     val nn = input º RELU() º hidden1 º RELU() º hidden2 º SIGMOID() º out
 
-    nn.setStats(new NNStats())
     // train with 1000 randomly created samples
     for ( _ <- 0 to 1000 ) {
       val nextTest = rnd()

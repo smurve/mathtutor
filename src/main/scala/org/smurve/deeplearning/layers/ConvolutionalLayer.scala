@@ -2,7 +2,7 @@ package org.smurve.deeplearning.layers
 
 import breeze.linalg.{DenseVector, sum}
 import org.smurve.deeplearning._
-import org.smurve.deeplearning.stats.NNStats
+import org.smurve.deeplearning.stats.{ConvLayerStats, NNStats}
 
 /**
   * A convolutional layer
@@ -15,8 +15,9 @@ import org.smurve.deeplearning.stats.NNStats
   * @param eta the learning factor for this layer
   */
 class ConvolutionalLayer(val name: String, val lrfSpecs: Array[LRFSpec], val eta: Double)
-
   extends Layer {
+
+  val stats = new ConvLayerStats(name, 2)
 
   val n_features: Int = lrfSpecs.length
 
@@ -25,6 +26,8 @@ class ConvolutionalLayer(val name: String, val lrfSpecs: Array[LRFSpec], val eta
 
   private var avg_nabla_b: Array[Double] = _ // DenseVector.zeros(outputSize)
   private var avg_nabla_w: Array[DV] = _ // DenseMatrix.zeros(outputSize, inputSize)
+  private var avg_x: DV = _
+  private var avg_z: DV = _
 
   private var batchCounter = 0
 
@@ -36,6 +39,10 @@ class ConvolutionalLayer(val name: String, val lrfSpecs: Array[LRFSpec], val eta
     avg_nabla_w = Array.tabulate(lrfSpecs.length)(m => {
       DenseVector.zeros[Double](lrfSpecs(m).lrf_size)
     })
+
+    avg_x = DenseVector.zeros[Double](inputSize)
+
+    avg_z = DenseVector.zeros[Double](nextLayer.get.inputSize)
 
     batchCounter = 0
   }
@@ -50,11 +57,17 @@ class ConvolutionalLayer(val name: String, val lrfSpecs: Array[LRFSpec], val eta
       val spec = spec_and_index._1
       val m = spec_and_index._2
 
-      spec.w :-= avg_nabla_w(m) * (eta / batchCounter)
+      spec.w -= avg_nabla_w(m) * (eta / batchCounter)
       spec.b -= avg_nabla_b(m) * (eta / batchCounter)
+
+      stats.nw(m) = avg_nabla_w(m) :: stats.nw(m)
+      stats.nb(m) = avg_nabla_b(m) :: stats.nb(m)
+      stats.w(m) = spec.w.copy :: stats.w(m)
+      stats.b(m) = spec.b :: stats.b(m)
     })
 
     resetBatch()
+    nNStats.registerStats(stats)
     nextLayer.get.update(nNStats)
   }
 
@@ -122,6 +135,8 @@ class ConvolutionalLayer(val name: String, val lrfSpecs: Array[LRFSpec], val eta
       avg_nabla_w(m) :+= nabla_wm
       avg_nabla_b(m) += nabla_bm
     })
+    avg_x += x
+    avg_z += zx
 
     DenseVector.tabulate(inputSize)(d => dC_dx_d(delta, d))
   }

@@ -3,8 +3,8 @@ package org.smurve.deeplearning
 import breeze.linalg._
 import org.scalatest.{FlatSpec, ShouldMatchers}
 import org.smurve.deeplearning.layers._
-import org.smurve.deeplearning.optimizers.SignumBasedMomentum
-import org.smurve.deeplearning.stats.{NNStats, OutputLayer}
+import org.smurve.deeplearning.optimizers.{ConstantOptimizer, SignumBasedMomentum}
+import org.smurve.deeplearning.stats.OutputLayer
 
 class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
 
@@ -127,12 +127,11 @@ class ConvolutionalLayerTest extends FlatSpec with ShouldMatchers {
 
     val conv = new ConvolutionalLayer("conv", lrfSpecs = lrfSpecs, eta = 0.2)
     val hidden = new DenseLayer(_inputSize = 24, initWith = INIT_WITH_RANDOM,
-      opt_b = new SignumBasedMomentum(eta = .1), opt_w = new SignumBasedMomentum(eta = 0.1) )
+      opt_b = new ConstantOptimizer(eta = 2), opt_w = new ConstantOptimizer(eta = 2) )
 
     val batch_size = 100
     val output = new OutputLayer(2)
     val nn = conv || RELU() || hidden || SIGMOID() || output
-    nn.setStats(new NNStats(NL=3, NS=100))
     for ( n <- 1 to 10000) {
       val (img, y) = rndImage
       nn.feedForwardAndPropBack(img, y)

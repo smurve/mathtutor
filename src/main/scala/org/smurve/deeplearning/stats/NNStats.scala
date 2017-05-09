@@ -9,6 +9,8 @@ import scala.collection.mutable
   */
 class NNStats ( val NL: Int = 10, val NS: Int = 100 ) {
 
+  def getStats(key: String) : Option[LayerStats] = layerStats.get(key)
+
   private val layerStats:  mutable.Map[String, LayerStats] = new mutable.HashMap[String, LayerStats]()
 
   def registerStats(layer: LayerStats ): Unit = layerStats.put(layer.name, layer)

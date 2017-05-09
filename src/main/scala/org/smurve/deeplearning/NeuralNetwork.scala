@@ -8,22 +8,16 @@ import org.smurve.deeplearning.stats.{NNStats, OutputLayer}
   */
 class NeuralNetwork(input: Layer, output: OutputLayer) extends Layer  {
 
-  private var nnStats : NNStats = new NNStats
-
   /**
-    * Need to implement for this to become a layer, but here, we're actually proving the stats ourselves
+    * Need to implement for this to become a layer, but here, we're actually providing the stats ourselves
     */
   override def update( otherNNStats: NNStats ): NNStats =
     throw new NotImplementedError("Use update withouth parameter instead")
 
-  def setStats (otherStats: NNStats ) : Unit = {
-    nnStats = otherStats
-  }
-
   /**
     * tell the input layer to update, input layer will call the subsequent layers
     */
-  def update( ): NNStats = input.update( nnStats )
+  def update( ): NNStats = input.update( new NNStats())
 
   /**
     * redirect to the input layer to update, input layer will call the subsequent layers

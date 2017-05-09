@@ -58,13 +58,7 @@ abstract class Layer()  {
     val nextEntry = next.entry
     thisExit.nextLayer = Some(nextEntry)
     nextEntry.previousLayer = Some(thisExit)
-
-    next match {
-      case output: OutputLayer =>
-        output.initialize()
-        new NeuralNetwork(this.entry, output)
-      case _ => this
-    }
+    this
   }
 
   def || (output: OutputLayer ): NeuralNetwork = {
